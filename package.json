@@ -30,7 +30,7 @@
     "@astrojs/check": "^0.9.10",
     "postcss": "^8.5.29",
     "sharp": "^0.35.5",
-    "typescript": "^7.0.2"
+    "typescript": "^6.0.3"
   },
   "packageManager": "pnpm@12.4.1"
 }
