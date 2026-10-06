@@ -1,0 +1,365 @@
+/* Minesweeper. Chrome colors come from the theme tokens; the game's own
+   palette (number hues, LED, flag, face) is defined once here as --ms-*
+   properties and retuned for the dark theme. Number colors keep at least
+   4.5:1 against the revealed cell (--surface) in both themes. */
+
+mine-sweeper {
+  --cell: 16px;
+  --u: 1px;
+  --bev: 2px;
+
+  --ms-1: #0000e0;
+  --ms-2: #006000;
+  --ms-3: #b00000;
+  --ms-4: #000080;
+  --ms-5: #800000;
+  --ms-6: #005c5c;
+  --ms-7: var(--window-frame);
+  --ms-8: #464646;
+  --ms-ink: var(--window-frame);
+  --ms-flag: #d00000;
+  --ms-hit: #ff0000;
+  --ms-face: #ffd800;
+  --ms-led-bg: #000000;
+  --ms-led-on: #ff1a1a;
+  --ms-led-off: #3d0505;
+
+  display: block;
+  max-width: 100%;
+  font-family: var(--font-chrome);
+}
+
+:root[data-theme="dark"] mine-sweeper {
+  --ms-1: #93b4ff;
+  --ms-2: #72e072;
+  --ms-3: #ff8a8a;
+  --ms-4: #c9b8ff;
+  --ms-5: #ffb59c;
+  --ms-6: #5ee8d2;
+  --ms-7: #f1f5f9;
+  --ms-8: #b9c3d3;
+  --ms-ink: #03060d;
+  --ms-flag: #ff4545;
+  --ms-hit: #e01b1b;
+  --ms-face: #ffcf33;
+}
+
+@media (pointer: coarse) {
+  mine-sweeper {
+    --cell: 32px;
+    --u: 2px;
+    --bev: 3px;
+  }
+}
+
+/* ---- frame ------------------------------------------------------------- */
+
+mine-sweeper .ms {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 100%;
+  padding: 6px;
+  background: var(--surface);
+  box-shadow: inset 3px 3px var(--button-highlight), inset -3px -3px var(--button-shadow);
+  vertical-align: top;
+}
+
+mine-sweeper .ms-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 5px;
+  box-shadow: inset 2px 2px var(--button-shadow), inset -2px -2px var(--button-highlight);
+}
+
+mine-sweeper .ms-scroll {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  border: 3px solid;
+  border-color: var(--button-shadow) var(--button-highlight) var(--button-highlight) var(--button-shadow);
+}
+
+mine-sweeper .ms-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell));
+  width: max-content;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+mine-sweeper .ms-grid [role="row"] { display: contents; }
+
+/* ---- LED counters ------------------------------------------------------ */
+
+mine-sweeper .ms-led {
+  display: inline-flex;
+  gap: var(--u);
+  padding: var(--u);
+  background: var(--ms-led-bg);
+  border: 1px solid;
+  border-color: var(--button-shadow) var(--button-highlight) var(--button-highlight) var(--button-shadow);
+}
+mine-sweeper .led-d {
+  position: relative;
+  width: calc(13 * var(--u));
+  height: calc(23 * var(--u));
+}
+mine-sweeper .led-d i {
+  position: absolute;
+  background: var(--ms-led-off);
+}
+/* 13x23 cell: 2-unit strokes with 1-unit gaps between segments. */
+mine-sweeper .led-d :is(.sa, .sg, .sd) {
+  left: calc(2 * var(--u));
+  width: calc(9 * var(--u));
+  height: calc(2 * var(--u));
+}
+mine-sweeper .led-d .sa { top: 0; clip-path: polygon(0 0, 100% 0, calc(100% - var(--u)) 100%, var(--u) 100%); }
+mine-sweeper .led-d .sg { top: calc(10.5 * var(--u)); clip-path: polygon(0 50%, var(--u) 0, calc(100% - var(--u)) 0, 100% 50%, calc(100% - var(--u)) 100%, var(--u) 100%); }
+mine-sweeper .led-d .sd { bottom: 0; clip-path: polygon(var(--u) 0, calc(100% - var(--u)) 0, 100% 100%, 0 100%); }
+mine-sweeper .led-d :is(.sf, .sb, .se, .sc) {
+  width: calc(2 * var(--u));
+  height: calc(9 * var(--u));
+}
+mine-sweeper .led-d :is(.sf, .sb) { top: calc(1.5 * var(--u)); }
+mine-sweeper .led-d :is(.se, .sc) { bottom: calc(1.5 * var(--u)); }
+mine-sweeper .led-d :is(.sf, .se) { left: 0; }
+mine-sweeper .led-d :is(.sb, .sc) { right: 0; }
+mine-sweeper .led-d :is(.sf, .se) { clip-path: polygon(0 0, 100% var(--u), 100% calc(100% - var(--u)), 0 100%); }
+mine-sweeper .led-d :is(.sb, .sc) { clip-path: polygon(0 var(--u), 100% 0, 100% 100%, 0 calc(100% - var(--u))); }
+mine-sweeper .led-d[data-seg*="a"] .sa,
+mine-sweeper .led-d[data-seg*="b"] .sb,
+mine-sweeper .led-d[data-seg*="c"] .sc,
+mine-sweeper .led-d[data-seg*="d"] .sd,
+mine-sweeper .led-d[data-seg*="e"] .se,
+mine-sweeper .led-d[data-seg*="f"] .sf,
+mine-sweeper .led-d[data-seg*="g"] .sg { background: var(--ms-led-on); }
+
+/* ---- smiley ------------------------------------------------------------ */
+
+mine-sweeper .ms-face {
+  display: grid;
+  place-items: center;
+  width: calc(26 * var(--u));
+  height: calc(26 * var(--u));
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  flex: none;
+}
+mine-sweeper .ms-face-art {
+  width: calc(17 * var(--u));
+  height: calc(17 * var(--u));
+}
+mine-sweeper .ms-face:active .ms-face-art { translate: 1px 1px; }
+mine-sweeper .f-fill { fill: var(--ms-face); }
+mine-sweeper .f-ink { fill: var(--ms-ink); }
+mine-sweeper :is(.f-eyes, .f-smile, .f-oh, .f-x, .f-frown, .f-shades) { display: none; }
+mine-sweeper[data-face="smile"] :is(.f-eyes, .f-smile),
+mine-sweeper[data-face="oh"] :is(.f-eyes, .f-oh),
+mine-sweeper[data-face="dead"] :is(.f-x, .f-frown),
+mine-sweeper[data-face="cool"] :is(.f-shades, .f-smile) { display: inline; }
+
+/* ---- cells ------------------------------------------------------------- */
+
+mine-sweeper .c {
+  position: relative;
+  width: var(--cell);
+  height: var(--cell);
+  background: var(--surface);
+  box-shadow: inset calc(-1 * var(--bev)) calc(-1 * var(--bev)) var(--button-shadow),
+    inset var(--bev) var(--bev) var(--button-highlight);
+  font: 700 calc(var(--cell) * 0.72) / var(--cell) var(--font-chrome);
+  text-align: center;
+  cursor: default;
+}
+mine-sweeper .c:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  z-index: 1;
+}
+mine-sweeper .c:not([data-s="h"], [data-s="f"]),
+mine-sweeper .c.down {
+  box-shadow: inset 1px 1px var(--button-shadow);
+}
+mine-sweeper .c[data-s="1"] { color: var(--ms-1); }
+mine-sweeper .c[data-s="2"] { color: var(--ms-2); }
+mine-sweeper .c[data-s="3"] { color: var(--ms-3); }
+mine-sweeper .c[data-s="4"] { color: var(--ms-4); }
+mine-sweeper .c[data-s="5"] { color: var(--ms-5); }
+mine-sweeper .c[data-s="6"] { color: var(--ms-6); }
+mine-sweeper .c[data-s="7"] { color: var(--ms-7); }
+mine-sweeper .c[data-s="8"] { color: var(--ms-8); }
+mine-sweeper .c[data-s="x"] { background: var(--ms-hit); }
+
+/* Icons are pixel masks on a 13-unit grid, colored by background. */
+mine-sweeper .c:is([data-s="f"], [data-s="m"], [data-s="x"], [data-s="w"])::before,
+mine-sweeper .c:is([data-s="f"], [data-s="m"], [data-s="x"], [data-s="w"])::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  -webkit-mask: var(--icon) center / calc(var(--cell) * 13 / 16) no-repeat;
+  mask: var(--icon) center / calc(var(--cell) * 13 / 16) no-repeat;
+}
+mine-sweeper .c:is([data-s="m"], [data-s="x"], [data-s="w"])::before {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 13' shape-rendering='crispEdges'%3E%3Cpath d='M6 0h1v13H6zM0 6h13v1H0zM4 3h5v7H4zM3 4h7v5H3zM2 2h1v1H2zM10 2h1v1h-1zM2 10h1v1H2zM10 10h1v1h-1z'/%3E%3C/svg%3E");
+  background: var(--ms-ink);
+}
+mine-sweeper .c:is([data-s="m"], [data-s="x"])::after {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 13' shape-rendering='crispEdges'%3E%3Cpath d='M4 4h2v2H4z'/%3E%3C/svg%3E");
+  background: var(--button-highlight);
+}
+mine-sweeper .c[data-s="w"]::after {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 13'%3E%3Cpath d='M1 1L12 12M12 1L1 12' stroke='black' stroke-width='1.7'/%3E%3C/svg%3E");
+  background: var(--ms-flag);
+}
+mine-sweeper .c[data-s="f"]::before {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 13' shape-rendering='crispEdges'%3E%3Cpath d='M5 1h2v1H5zM3 2h4v1H3zM2 3h5v1H2zM3 4h4v1H3zM5 5h2v1H5z'/%3E%3C/svg%3E");
+  background: var(--ms-flag);
+}
+mine-sweeper .c[data-s="f"]::after {
+  --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 13' shape-rendering='crispEdges'%3E%3Cpath d='M6 6h1v3H6zM4 8h4v1H4zM2 9h9v2H2z'/%3E%3C/svg%3E");
+  background: var(--ms-ink);
+}
+
+/* ---- flag mode (touch) --------------------------------------------------- */
+
+mine-sweeper .ms-flagmode { display: none; }
+@media (pointer: coarse) {
+  mine-sweeper .ms-flagmode {
+    display: block;
+    width: 100%;
+    min-height: var(--touch);
+  }
+}
+mine-sweeper .ms-flagmode[aria-pressed="true"] {
+  box-shadow: var(--border-sunken-outer), var(--border-sunken-inner);
+  background: var(--button-face);
+}
+
+/* ---- menu bar (upgraded from the window's inert labels) ----------------- */
+
+.ms-menubar {
+  display: flex;
+  gap: 0;
+  padding: 1px 2px;
+  font-family: var(--font-chrome);
+}
+.ms-menubar .ms-mb-item { position: relative; }
+.ms-menubar :is(.ms-mb-btn, .ms-menu-item) {
+  min-width: 0;
+  min-height: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--text-color);
+  text-shadow: none;
+  font: inherit;
+  font-size: 11px;
+}
+.ms-menubar .ms-mb-btn { padding: 3px 7px; }
+.ms-menubar :is(.ms-mb-btn[aria-expanded="true"], .ms-mb-btn:hover, .ms-menu-item:hover, .ms-menu-item:focus) {
+  background: var(--select-bg);
+  color: var(--select-ink);
+}
+.ms-menubar :is(.ms-mb-btn, .ms-menu-item):active { box-shadow: none; text-shadow: none; }
+.ms-menubar :is(.ms-mb-btn, .ms-menu-item):focus { outline: none; }
+.ms-menubar :is(.ms-mb-btn, .ms-menu-item):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.ms-menubar .ms-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  min-width: 170px;
+  padding: 3px;
+  background: var(--surface);
+  box-shadow: var(--border-raised-outer), var(--border-raised-inner);
+}
+.ms-menubar .ms-menu[hidden] { display: none; }
+.ms-menubar .ms-menu-item {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 3px 12px 3px 22px;
+  text-align: left;
+}
+.ms-menubar .ms-menu-item[aria-checked="true"]::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ms-menubar .ms-menu-sep {
+  margin: 3px 1px;
+  border-top: 1px solid var(--button-shadow);
+  border-bottom: 1px solid var(--button-highlight);
+}
+@media (pointer: coarse) {
+  .ms-menubar :is(.ms-mb-btn, .ms-menu-item) { min-height: var(--touch); }
+  .ms-menubar .ms-mb-btn { padding-inline: 12px; }
+}
+
+/* ---- dialogs ------------------------------------------------------------- */
+
+mine-sweeper .ms-dialog {
+  padding: 3px;
+  border: 0;
+  width: min(360px, calc(100vw - 32px));
+  color: var(--text-color);
+}
+mine-sweeper .ms-dialog::backdrop { background: transparent; }
+mine-sweeper .ms-dialog .title-bar-text { margin: 0; font-size: 11px; }
+mine-sweeper .ms-dialog-doc {
+  font-family: var(--font-doc);
+  font-size: var(--step-0);
+  line-height: 1.5;
+}
+mine-sweeper .ms-dialog-doc p { margin: 0 0 0.75em; }
+mine-sweeper .ms-best {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 16px;
+  margin: 0 0 0.75em;
+}
+mine-sweeper .ms-best dd { margin: 0; }
+mine-sweeper .ms-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+@media (pointer: coarse) {
+  mine-sweeper .ms-dialog-buttons button,
+  mine-sweeper .ms-dialog .title-bar-controls button { min-height: var(--touch); }
+  mine-sweeper .ms-dialog .title-bar-controls button { min-width: var(--touch); }
+  mine-sweeper .ms-face {
+    width: max(var(--touch), calc(26 * var(--u)));
+    height: max(var(--touch), calc(26 * var(--u)));
+  }
+}
+
+/* ---- window fit ---------------------------------------------------------- */
+
+/* The registry gives Minesweeper size 0x0, meaning "fit the content". */
+@media (min-width: 769px) {
+  win-window[data-app="minesweeper"] {
+    width: max-content;
+    height: auto;
+  }
+}
