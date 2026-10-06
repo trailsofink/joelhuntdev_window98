@@ -1,0 +1,10 @@
+---
+import Desktop from '../layouts/Desktop.astro';
+import Window from '../components/Window.astro';
+import { profile } from '../data/profile';
+---
+<Desktop title={profile.name} description={profile.summary} app="about">
+  <Window app="about" status={['6 objects']}>
+    <p>{profile.summary}</p>
+  </Window>
+</Desktop>

@@ -1,0 +1,83 @@
+---
+// Shared shell for every page: head, theme, boot screen, the persistent
+// desktop (icons, taskbar, Start menu) and the page's window.
+//
+// The desktop is marked transition:persist, so the ClientRouter keeps it and
+// its state (open windows, Start menu, sound setting) across navigations;
+// only <main> swaps.
+import { ClientRouter } from 'astro:transitions';
+import Analytics from '@vercel/analytics/astro';
+import SpeedInsights from '@vercel/speed-insights/astro';
+import BootScreen from '../components/boot/BootScreen.astro';
+import DesktopShell from '../components/shell/DesktopShell.astro';
+import type { AppId } from '../apps/registry';
+import { profile } from '../data/profile';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** The app whose window this page renders; the shell marks it active. */
+  app: AppId;
+}
+
+const { title, description, app } = Astro.props;
+const pageTitle = title === profile.name ? `${profile.name}, ${profile.title}` : `${title} | ${profile.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL('/og.png', Astro.site);
+---
+
+<!doctype html>
+<html lang="en" data-app={app}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#2f5d68" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preload" href="/fonts/ms_sans_serif.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+
+    <!-- Theme before first paint: saved choice, else the browser's, else light.
+         Re-applied after each client-side swap, which replaces <html> attributes. -->
+    <script is:inline>
+      (() => {
+        const apply = () => {
+          let t = null;
+          try { t = localStorage.getItem('theme'); } catch {}
+          if (t !== 'light' && t !== 'dark') {
+            t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.dataset.theme = t;
+        };
+        apply();
+        document.addEventListener('astro:after-swap', apply);
+      })();
+    </script>
+
+    <ClientRouter fallback="swap" />
+  </head>
+  <body>
+    <a class="skip-link visually-hidden" href="#windows">Skip to content</a>
+    <BootScreen />
+    <div id="desktop" transition:persist="desktop">
+      <DesktopShell active={app} />
+    </div>
+    <main id="windows" transition:animate="none">
+      <slot />
+    </main>
+    <Analytics />
+    <SpeedInsights />
+  </body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "joelhuntdev-window98",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "astro": "astro",
+    "vendor:98": "node scripts/vendor-98.mjs"
+  },
+  "dependencies": {
+    "98.css": "^0.1.21",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource/atkinson-hyperlegible-next": "^5.3.0",
+    "@fontsource/vt323": "^5.3.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "astro": "^7.3.6"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "sharp": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "postcss": "^8.5.29",
+    "sharp": "^0.35.5",
+    "typescript": "^7.0.2"
+  }
+}

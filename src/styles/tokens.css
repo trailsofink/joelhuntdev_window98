@@ -1,0 +1,99 @@
+/*
+ * Midnight 98: theme tokens.
+ *
+ * Two themes share one idea: Windows 98 seen after dark. "Dusk" (light) is the
+ * classic silver chrome cooled toward slate, with the base navy #0f172a as the
+ * window frame and ink. "Midnight" (dark) puts that navy on the desktop and
+ * lifts the chrome into lit slate. Amber phosphor, the color of the boot
+ * screen, is the one accent: focus rings, the text cursor, the boot text.
+ *
+ * The 98.css variable names are kept so the vendored stylesheet themes itself.
+ * Icon colors in scripts/vendor-98.mjs mirror the bevel tokens here.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Desktop */
+  --desktop: #2f5d68;
+  --desktop-ink: #ffffff;
+
+  /* Bevel chrome (98.css names) */
+  --surface: #c3c9d3;
+  --button-face: #dde2ea;
+  --button-highlight: #ffffff;
+  --button-shadow: #7a8394;
+  --window-frame: #0f172a;
+  --text-color: #0f172a;
+
+  /* Title bars */
+  --dialog-blue: #0f172a;
+  --dialog-blue-light: #3461b5;
+  --dialog-gray: #566072;
+  --dialog-gray-light: #8a93a3;
+  --title-ink: #ffffff;
+  --title-ink-inactive: #e2e8f0;
+
+  /* Documents (WordPad / Explorer content panes) */
+  --doc-bg: #f8fafc;
+  --doc-ink: #0f172a;
+  --doc-muted: #475569;
+  --link-blue: #1d4ed8;
+
+  /* Selection and accent */
+  --select-bg: #1e3a8a;
+  --select-ink: #ffffff;
+  --accent: #9a3f00;
+
+  /* Boot screen: same in both themes, it is a CRT */
+  --crt-bg: #05070c;
+  --crt-ink: #c8ccd4;
+  --crt-amber: #ffb547;
+
+  /* Type */
+  --font-chrome: "Pixelated MS Sans Serif", Arial, sans-serif;
+  --font-doc: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --font-crt: "VT323", ui-monospace, monospace;
+
+  /* Type scale for documents (1.25, minor third rounded to whole px) */
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.5625rem;
+  --step-3: 1.9375rem;
+  --measure: 68ch;
+
+  /* Shell metrics */
+  --taskbar-h: 40px;
+  --touch: 44px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --desktop: #0f172a;
+  --desktop-ink: #e2e8f0;
+
+  --surface: #253248;
+  --button-face: #33425c;
+  --button-highlight: #50617f;
+  --button-shadow: #111a2c;
+  --window-frame: #03060d;
+  --text-color: #e2e8f0;
+
+  --dialog-blue: #1e2a78;
+  --dialog-blue-light: #3f6fd1;
+  --dialog-gray: #2b3446;
+  --dialog-gray-light: #475166;
+  --title-ink: #ffffff;
+  --title-ink-inactive: #cbd5e1;
+
+  --doc-bg: #0b1222;
+  --doc-ink: #e2e8f0;
+  --doc-muted: #94a3b8;
+  --link-blue: #93b8ff;
+
+  --select-bg: #3b6fd6;
+  --select-ink: #ffffff;
+  --accent: #ffb547;
+}

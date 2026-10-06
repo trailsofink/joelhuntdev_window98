@@ -1,0 +1,66 @@
+---
+// One window on the desktop. Every page renders exactly one of these as its
+// main content, so the page works and reads fully without JavaScript; the
+// window manager (src/scripts/wm.ts) upgrades <win-window> to drag, focus,
+// minimize and maximize once loaded.
+//
+// Contract other parts of the site rely on:
+//   - data-app is the registry id; the taskbar and Start menu key off it.
+//   - The title is the page's <h1>, so each page has exactly one.
+//   - Close is a link to "/" (About Me) so it works without JS.
+//   - Content goes in the default slot; pass `doc` for a document pane
+//     (white page, readable font) instead of plain chrome.
+import { getApp, type AppId } from '../apps/registry';
+
+interface Props {
+  app: AppId;
+  /** Overrides the registry title, e.g. a case study's own name. */
+  title?: string;
+  /** Short menu bar labels, e.g. ['File', 'Edit', 'View', 'Help']. */
+  menu?: string[];
+  /** Status bar fields along the bottom edge. */
+  status?: string[];
+  /** Render the body as a sunken white document pane. */
+  doc?: boolean;
+}
+
+const { app: appId, title, menu = [], status = [], doc = false } = Astro.props;
+const app = getApp(appId);
+const heading = title ?? app.title;
+const headingId = `win-title-${app.id}`;
+---
+
+<win-window
+  class="window"
+  data-app={app.id}
+  data-kind={app.kind}
+  data-resizable={app.resizable ? '' : undefined}
+  style={`--win-w:${app.size.width}px; --win-h:${app.size.height}px;`}
+  role="region"
+  aria-labelledby={headingId}
+>
+  <div class="title-bar">
+    <h1 class="title-bar-text" id={headingId}>{heading}</h1>
+    <div class="title-bar-controls">
+      <button type="button" aria-label="Minimize" data-action="minimize"></button>
+      {app.resizable && <button type="button" aria-label="Maximize" data-action="maximize"></button>}
+      <a href="/" aria-label="Close" data-action="close" class="win-close" role="button"></a>
+    </div>
+  </div>
+
+  {menu.length > 0 && (
+    <div class="win-menu" role="menubar" aria-label={`${heading} menu`}>
+      {menu.map((m) => <span role="menuitem" aria-disabled="true">{m}</span>)}
+    </div>
+  )}
+
+  <div class:list={['window-body', 'win-body', { doc, 'sunken-panel': doc }]}>
+    <slot />
+  </div>
+
+  {status.length > 0 && (
+    <div class="status-bar">
+      {status.map((s) => <p class="status-bar-field">{s}</p>)}
+    </div>
+  )}
+</win-window>
