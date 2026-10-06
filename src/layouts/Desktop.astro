@@ -4,7 +4,9 @@
 //
 // The desktop is marked transition:persist, so the ClientRouter keeps it and
 // its state (open windows, Start menu, sound setting) across navigations;
-// only <main> swaps.
+// only <main> swaps. transition:animate sits on <html>, not <main>: a
+// view-transition-name on <main> would make it a stacking context, and windows
+// kept in the persistent layer could no longer stack above the page's window.
 import { ClientRouter } from 'astro:transitions';
 import Analytics from '@vercel/analytics/astro';
 import SpeedInsights from '@vercel/speed-insights/astro';
@@ -28,7 +30,7 @@ const ogImage = new URL('/og.png', Astro.site);
 ---
 
 <!doctype html>
-<html lang="en" data-app={app}>
+<html lang="en" data-app={app} transition:animate="none">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -74,7 +76,7 @@ const ogImage = new URL('/og.png', Astro.site);
     <div id="desktop" transition:persist="desktop">
       <DesktopShell active={app} />
     </div>
-    <main id="windows" transition:animate="none">
+    <main id="windows">
       <slot />
     </main>
     <Analytics />

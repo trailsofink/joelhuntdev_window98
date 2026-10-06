@@ -7,7 +7,7 @@
 // and Esc. Submenus then open on hover or focus.
 
 import { navigate } from 'astro:transitions/client';
-import { isSoundOn, setSound } from './settings';
+import { soundOn as isSoundOn, setSound } from './sound';
 import { closeAll } from './wm';
 
 const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T | null;
@@ -41,7 +41,8 @@ if (startBtn && menu) {
     startBtn.setAttribute('aria-expanded', String(open));
     if (open) {
       leaving = false;
-      itemsOf(menu.querySelector('.start-list')!)[0]?.focus();
+      // After the click that opened it has finished moving focus to Start.
+      requestAnimationFrame(() => itemsOf(menu.querySelector('.start-list')!)[0]?.focus());
     } else {
       collapseAll();
       const a = document.activeElement;

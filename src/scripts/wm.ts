@@ -400,3 +400,5 @@ class WinWindow extends HTMLElement {
   connectedMoveCallback() {}
 }
 if (!customElements.get('win-window')) customElements.define('win-window', WinWindow);
+// Pages without a window (404) still need the taskbar brought up to date.
+schedule();

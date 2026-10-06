@@ -1,4 +1,5 @@
-// Visitor settings shared by the tray, the Control Panel and the boot screen.
+// Theme setting shared by the head script's rules and the Control Panel.
+// Sound lives in src/scripts/sound.ts.
 // Storage can throw (private mode, blocked site data), so every access is
 // guarded and the defaults hold: sound off, theme from the browser.
 
@@ -25,14 +26,4 @@ export function setThemeChoice(choice: ThemeChoice) {
     ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     : choice;
   document.documentElement.dataset.theme = resolved;
-}
-
-export function isSoundOn(): boolean {
-  return read('sound') === 'on';
-}
-
-/** Saves the sound setting and tells every listener: `sound-change` on window, detail `{ on }`. */
-export function setSound(on: boolean) {
-  write('sound', on ? 'on' : 'off');
-  window.dispatchEvent(new CustomEvent('sound-change', { detail: { on } }));
 }

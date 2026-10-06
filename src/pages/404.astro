@@ -1,0 +1,69 @@
+---
+// Not found: a Windows 98 error box. It uses the window classes but not
+// <win-window>, so the window manager leaves it alone (no taskbar button,
+// no dragging) and it disappears as soon as the visitor goes anywhere else.
+import Desktop from '../layouts/Desktop.astro';
+import Icon from '../components/Icon.astro';
+---
+<Desktop
+  title="Page not found"
+  description="This page doesn't exist on Joel Hunt's portfolio. Head back to the desktop to see his work, resume and contact details."
+  app="about"
+>
+  <div class="window error-dialog" role="alertdialog" aria-labelledby="error-title" aria-describedby="error-text">
+    <div class="title-bar">
+      <h1 class="title-bar-text" id="error-title">Error</h1>
+      <div class="title-bar-controls">
+        <a href="/" aria-label="Close" class="win-close" role="button"></a>
+      </div>
+    </div>
+    <div class="window-body error-body">
+      <Icon name="error" size={32} />
+      <div id="error-text">
+        <p class="error-lead">You shall not pass</p>
+        <p>The page you asked for doesn't exist. It may have moved, or the address has a typo.</p>
+      </div>
+      <a class="error-ok" href="/">OK</a>
+    </div>
+  </div>
+</Desktop>
+
+<style>
+  .error-dialog {
+    position: fixed;
+    left: 50%;
+    top: calc((100dvh - var(--shell-bottom)) / 2);
+    translate: -50% -50%;
+    width: min(380px, calc(100vw - 16px));
+    z-index: 5000;
+  }
+  .error-body {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 14px;
+    align-items: start;
+    margin: 14px;
+    font-family: var(--font-chrome);
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .error-body p { margin: 0 0 6px; }
+  .error-lead { font-weight: bold; }
+  /* A link drawn as the dialog's default button. */
+  .error-ok {
+    grid-column: 1 / -1;
+    justify-self: center;
+    display: inline-grid;
+    place-items: center;
+    min-width: 75px;
+    min-height: 23px;
+    padding: 0 12px;
+    background: var(--surface);
+    color: var(--text-color);
+    text-decoration: none;
+    box-shadow: var(--default-button-border-raised-outer), var(--default-button-border-raised-inner);
+  }
+  .error-ok:active { box-shadow: var(--default-button-border-sunken-outer), var(--default-button-border-sunken-inner); }
+  .error-ok:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  @media (pointer: coarse) { .error-ok { min-height: var(--touch); } }
+</style>
