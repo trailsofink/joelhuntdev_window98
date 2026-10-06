@@ -1,0 +1,15 @@
+---
+import Desktop from '../../layouts/Desktop.astro';
+import Window from '../../components/Window.astro';
+import Minesweeper from '../../games/minesweeper/Minesweeper.astro';
+---
+
+<Desktop
+  title="Minesweeper"
+  description="Play Minesweeper on Joel Hunt's Windows 98 desktop: Beginner, Intermediate and Expert boards with mouse, touch and keyboard controls."
+  app="minesweeper"
+>
+  <Window app="minesweeper" menu={['Game', 'Help']}>
+    <Minesweeper />
+  </Window>
+</Desktop>

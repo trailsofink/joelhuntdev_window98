@@ -1,0 +1,49 @@
+---
+// Server-rendered Minesweeper frame: counters, smiley and an empty beginner
+// board, so the window has its final shape before any script runs. The
+// <mine-sweeper> element loads the game code only once it is connected.
+import { FACE_SVG, ledDigit, ledText } from './art';
+import { LEVELS } from './engine';
+import rawCss from './minesweeper.css?raw';
+
+// The stylesheet travels inside the element (not the page head) so a kept
+// Minesweeper window stays styled when the router swaps to another page.
+const css = rawCss
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/\s+/g, ' ')
+  .replace(/\s*([{};,>])\s*/g, '$1')
+  .trim();
+
+const { w, h, mines } = LEVELS.beginner;
+const led = (n: number) => [...ledText(n)].map(ledDigit).join('');
+const rows = Array.from({ length: h }, (_, y) => y);
+const cols = Array.from({ length: w }, (_, x) => x);
+---
+
+<mine-sweeper data-face="smile" data-level="beginner">
+  <style is:inline set:html={css}></style>
+  <div class="ms" style={`--cols:${w}`}>
+    <div class="ms-head">
+      <span class="ms-led" data-led="mines" role="img" aria-label={`${mines} mines left`} set:html={led(mines)} />
+      <button type="button" class="ms-face" aria-label="New game" set:html={FACE_SVG} />
+      <span class="ms-led" data-led="time" role="img" aria-label="0 seconds" set:html={led(0)} />
+    </div>
+    <div class="ms-scroll">
+      <div class="ms-grid" role="grid" aria-label="Minefield, 9 by 9, 10 mines" aria-rowcount={h} aria-colcount={w}>
+        {rows.map((y) => (
+          <div role="row">
+            {cols.map((x) => (
+              <div role="gridcell" class="c" data-s="h" aria-label="hidden" tabindex={x === 0 && y === 0 ? 0 : -1} />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+    <button type="button" class="ms-flagmode" aria-pressed="false">Flag mode</button>
+  </div>
+  <p class="visually-hidden" aria-live="polite" data-live></p>
+</mine-sweeper>
+
+<script>
+  import './element';
+</script>
