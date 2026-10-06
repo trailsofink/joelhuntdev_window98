@@ -1,0 +1,34 @@
+---
+// Pixel icons from src/assets/icons/<name>.svg, drawn on a 32x32 grid.
+// Until an icon file exists this renders a plain beveled tile, so pages can
+// reference names from the list below before the artwork lands.
+//
+// Names: my-computer, wordpad-doc, text-doc, pdf, folder, folder-open, outlook,
+// mail, control-panel, display, minesweeper, solitaire, recycle-bin,
+// recycle-bin-full, shortcut-web, linkedin, github, speaker, speaker-muted,
+// start-flag, shut-down, help, game-folder.
+interface Props {
+  name: string;
+  size?: 16 | 32 | 48;
+  /** Icons sit next to visible labels, so they are decorative by default. */
+  alt?: string;
+}
+
+const { name, size = 32, alt = '' } = Astro.props;
+const files = import.meta.glob<string>('../assets/icons/*.svg', { query: '?url', import: 'default', eager: true });
+const src = files[`../assets/icons/${name}.svg`];
+---
+
+{src ? (
+  <img class="icon" src={src} width={size} height={size} alt={alt} decoding="async" draggable="false" />
+) : (
+  <span class="icon icon-missing" style={`width:${size}px;height:${size}px`} role={alt ? 'img' : undefined} aria-label={alt || undefined} aria-hidden={alt ? undefined : 'true'}></span>
+)}
+
+<style>
+  .icon { image-rendering: pixelated; flex: none; display: inline-block; }
+  .icon-missing {
+    background: var(--button-face);
+    box-shadow: inset -1px -1px var(--window-frame), inset 1px 1px var(--button-highlight), inset -2px -2px var(--button-shadow);
+  }
+</style>
