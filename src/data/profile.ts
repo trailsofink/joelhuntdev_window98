@@ -8,6 +8,9 @@ export const profile = {
   email: 'itsjoelhunt@gmail.com',
   summary:
     'Full-stack and UX product engineer with 6 years of experience taking web products from Figma to production. Most recently Director of Product Engineering at Bulqit, a home-services marketplace, where I was one of two in-house engineers: I took over a codebase inherited from a dismissed agency, rebuilt its front end, and took the platform through public launch.',
+  // Two sentences for tight spaces such as the About Me details pane.
+  shortSummary:
+    'Full-stack and UX product engineer with 6 years of experience taking web products from Figma to production. Most recently Director of Product Engineering at Bulqit, a home-services marketplace, which I took through public launch.',
   resumePdf: '/Joel_Hunt_Resume.pdf',
   links: [
     { id: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/in/joel-hunt', handle: 'linkedin.com/in/joel-hunt' },

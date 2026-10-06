@@ -27,6 +27,9 @@ const { title, description, app } = Astro.props;
 const pageTitle = title === profile.name ? `${profile.name}, ${profile.title}` : `${title} | ${profile.name}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL('/og.png', Astro.site);
+// Analytics scripts are served by Vercel's edge, so they only exist on Vercel
+// deployments; elsewhere (local preview, CI Lighthouse) they would 404.
+const onVercel = Boolean(process.env.VERCEL);
 ---
 
 <!doctype html>
@@ -79,7 +82,7 @@ const ogImage = new URL('/og.png', Astro.site);
     <main id="windows">
       <slot />
     </main>
-    <Analytics />
-    <SpeedInsights />
+    {onVercel && <Analytics />}
+    {onVercel && <SpeedInsights />}
   </body>
 </html>

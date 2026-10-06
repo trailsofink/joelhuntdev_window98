@@ -173,7 +173,7 @@ const timing = `--t-start:${ms(T.starting)};--t-splash:${ms(T.splash)};--t-fade:
         <g class="mk-pane">{markPane.map((r) => <rect x={r.x} y={r.y} width={r.w} height="1" />)}</g>
         <g class="mk-moon">{markMoon.map((r) => <rect x={r.x} y={r.y} width={r.w} height="1" />)}</g>
       </svg>
-      <p class="splash-title"><span class="splash-name">Joel Hunt</span><span class="splash-ver">98</span><span class="splash-shine"></span></p>
+      <p class="splash-title"><span class="splash-name">Joel Hunt</span><span class="splash-ver">98</span></p>
       <p class="splash-sub">Full-Stack &amp; UX Product Engineer</p>
     </div>
     <div class="splash-bar"><div></div></div>
@@ -465,23 +465,6 @@ const timing = `--t-start:${ms(T.starting)};--t-splash:${ms(T.splash)};--t-fade:
       0.08em 0.08em 0 var(--crt-bg);
     animation: drop 650ms cubic-bezier(0.3, 1.6, 0.5, 1) calc(var(--t-splash) + 220ms) both;
   }
-  /* One pass of light across the title. */
-  .splash-shine {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-  .splash-shine::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    width: 40%;
-    background: linear-gradient(100deg, transparent, var(--title-ink), transparent);
-    opacity: 0.35;
-    transform: translateX(-120%) skewX(-12deg);
-    animation: sweep 900ms ease-in-out calc(var(--t-splash) + 350ms) both;
-  }
   .splash-sub {
     font-size: clamp(16px, 1.2vw + 10px, 22px);
     letter-spacing: 0.04em;
@@ -528,6 +511,5 @@ const timing = `--t-start:${ms(T.starting)};--t-splash:${ms(T.splash)};--t-fade:
   @keyframes drop {
     from { transform: translateY(-70%) scale(1.5) rotate(-8deg); }
   }
-  @keyframes sweep { to { transform: translateX(320%) skewX(-12deg); } }
   @keyframes scroll { to { transform: translateX(-50%); } }
 </style>
