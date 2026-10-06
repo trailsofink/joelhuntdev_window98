@@ -1,0 +1,112 @@
+/* Shared styles for the content windows (WordPad documents, Notepad files,
+   Outlook). Long-form type comes from .doc in global.css; this adds the
+   pieces documents need on top of it. Colors only through tokens. */
+
+/* 98.css gives tables the pixel font; documents use the readable one. */
+.doc table {
+  font-family: inherit;
+  font-size: var(--step-0);
+  border-collapse: collapse;
+  margin: 0 0 1.25em;
+  width: 100%;
+  max-width: var(--measure);
+  background: transparent;
+  color: inherit;
+  white-space: normal;
+}
+.doc table > :is(thead, tbody) > tr > :is(th, td) {
+  position: static;
+  height: auto;
+  text-align: left;
+  padding: 6px 10px;
+  background: transparent;
+  box-shadow: none;
+  border-bottom: 1px solid var(--button-shadow);
+}
+.doc table > thead > tr > th { font-weight: 700; border-bottom-width: 2px; }
+.doc table > :is(thead, tbody) > tr > :not(:first-child) { text-align: right; white-space: nowrap; }
+
+/* Documents start with a little breathing room inside the sunken pane. */
+.doc-page {
+  padding: 16px clamp(14px, 4cqi, 32px) 28px;
+  container-type: inline-size;
+  overflow-wrap: break-word;
+}
+.doc-page > :first-child { margin-top: 0; }
+
+.doc-meta {
+  color: var(--doc-muted);
+  font-size: var(--step--1);
+  margin: 0 0 1em;
+}
+.doc-lede {
+  font-size: var(--step-1);
+  line-height: 1.45;
+}
+
+/* A 98-style push button as a link (Download PDF, Copy, etc.). */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 23px;
+  min-width: 75px;
+  padding: 3px 12px;
+  background: var(--surface);
+  color: var(--text-color);
+  font-family: var(--font-chrome);
+  font-size: 11px;
+  text-decoration: none;
+  box-shadow: var(--border-raised-outer), var(--border-raised-inner);
+}
+.btn:active { box-shadow: var(--border-sunken-outer), var(--border-sunken-inner); }
+@media (pointer: coarse) {
+  .btn, .doc-toolbar button { min-height: var(--touch); }
+}
+
+/* Toolbar strip above a document (WordPad's button row). */
+.doc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 2px 6px;
+  font-family: var(--font-chrome);
+  font-size: 11px;
+  color: var(--text-color);
+}
+
+/* Context banner at the top of a case study. */
+.doc-note {
+  border-left: 4px solid var(--button-shadow);
+  padding: 4px 0 4px 12px;
+  color: var(--doc-muted);
+  max-width: var(--measure);
+}
+
+/* Figures written in Markdown: an image paragraph, then an italic caption. */
+.doc-page p:has(> img) { margin: 1.5em 0 0.4em; max-width: none; }
+.doc-page p:has(> img) + p:has(> em:only-child) {
+  color: var(--doc-muted);
+  font-size: var(--step--1);
+  margin-top: 0;
+}
+.doc-page img {
+  border: 1px solid var(--button-shadow);
+  max-width: min(100%, 960px);
+  height: auto;
+}
+/* Phone screenshots are tall: keep them phone-sized. */
+.doc-page img[src*="-mobile"] { max-width: min(100%, 300px); }
+
+.doc-cover { margin: 1.25em 0 1.5em; }
+.doc-cover img { width: 100%; }
+
+.doc-links {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}

@@ -1,10 +1,54 @@
 ---
 import Desktop from '../layouts/Desktop.astro';
 import Window from '../components/Window.astro';
+import Explorer, { type ExplorerItem } from '../components/Explorer.astro';
 import { profile } from '../data/profile';
+import '../components/content/content.css';
+
+const linkedin = profile.links.find((l) => l.id === 'linkedin')!;
+const github = profile.links.find((l) => l.id === 'github')!;
+
+const items: ExplorerItem[] = [
+  {
+    label: 'About Joel.txt',
+    icon: 'text-doc',
+    body: [
+      'Joel Hunt is a full-stack and UX product engineer in Chicago with 6 years of experience taking web products from Figma to production.',
+      'He started in 2020 as a web designer building client websites, then moved through UX development on Moodle and Totara training portals, product design for online courses, and full-stack engineering.',
+      'Most recently he was Director of Product Engineering at Bulqit, a home-services marketplace. In five months he completed 646 Linear issues and merged 454 pull requests across React, Next.js, TypeScript, Node.js and PostgreSQL, and built the company’s end-to-end test suite, CI quality gates, security fixes and performance work.',
+      'His design background means the interfaces he builds match the design system and meet WCAG 2.1 accessibility standards.',
+      'Open Projects for case studies, or Resume.doc for the full history.',
+    ],
+  },
+  { label: 'Work Experience', icon: 'folder', href: '/experience' },
+  { label: 'Projects', icon: 'folder', href: '/projects' },
+  { label: 'Resume.doc', icon: 'wordpad-doc', href: '/resume' },
+  { label: 'Joel_Hunt_Resume.pdf', icon: 'pdf', href: profile.resumePdf, download: 'Joel_Hunt_Resume.pdf' },
+  { label: 'LinkedIn', icon: 'linkedin', href: linkedin.href, external: true },
+  { label: 'GitHub', icon: 'github', href: github.href, external: true },
+  { label: 'Email Joel', icon: 'mail', href: '/contact' },
+  { label: 'Credits.txt', icon: 'text-doc', href: '/credits' },
+];
+
+const description =
+  'Joel Hunt, senior full-stack and UX product engineer in Chicago. Case studies from Bulqit and FiveQ, work history, resume and contact details.';
 ---
-<Desktop title={profile.name} description={profile.summary} app="about">
-  <Window app="about" status={['6 objects']}>
-    <p>{profile.summary}</p>
+
+<Desktop title={profile.name} description={description} app="about">
+  <Window app="about" status={[`${items.length} objects`, 'My Computer']}>
+    <Explorer path={'C:\\Joel Hunt\\'} items={items} label="About Me files">
+      <Fragment slot="details">
+        <h2 class="about-name">{profile.name}</h2>
+        <p class="about-title">{profile.title}</p>
+        <p>{profile.summary}</p>
+        <p class="about-loc">{profile.location} · <a href="/contact">{profile.email}</a></p>
+      </Fragment>
+    </Explorer>
   </Window>
 </Desktop>
+
+<style>
+  .about-name { font-size: var(--step-2); margin: 0 0 0.15em; }
+  .about-title { font-weight: 700; color: var(--doc-muted); margin: 0 0 0.8em; }
+  .about-loc { color: var(--doc-muted); }
+</style>
