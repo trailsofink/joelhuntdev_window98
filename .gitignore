@@ -26,3 +26,4 @@ pnpm-debug.log*
 # raw source assets (private reference, not published)
 assets-raw/
 .vercel
+.claude/worktrees/
