@@ -1,0 +1,183 @@
+---
+// Control Panel: theme (Display), sound (Sound) and Joel's skills shown as a
+// Device Manager tree (System). Works without JavaScript as a readable page;
+// the script makes the settings apply live.
+import Desktop from '../layouts/Desktop.astro';
+import Window from '../components/Window.astro';
+import Icon from '../components/Icon.astro';
+import { profile, skills } from '../data/profile';
+
+const groups = Object.entries(skills);
+const sections = [
+  { id: 'cp-display', label: 'Display', icon: 'display' },
+  { id: 'cp-sound', label: 'Sound', icon: 'speaker' },
+  { id: 'cp-system', label: 'System', icon: 'my-computer' },
+];
+---
+<Desktop
+  title="Control Panel"
+  description="Settings for Joel Hunt's Windows 98-style portfolio: switch between the Dusk and Midnight themes, turn sound on or off, and browse his skills in a Device Manager view."
+  app="control-panel"
+>
+  <Window app="control-panel" menu={['File', 'Edit', 'View', 'Help']} status={[`${sections.length} objects`]}>
+    <div class="cp">
+      <ul class="cp-icons sunken-panel" aria-label="Control Panel items">
+        {sections.map((s) => (
+          <li><a href={`#${s.id}`}><Icon name={s.icon} size={32} /><span>{s.label}</span></a></li>
+        ))}
+      </ul>
+
+      <section id="cp-display" class="cp-section" aria-labelledby="cp-display-h">
+        <h2 id="cp-display-h"><Icon name="display" size={16} /> Display</h2>
+        <fieldset>
+          <legend>Theme</legend>
+          <div class="field-row">
+            <input type="radio" id="theme-light" name="theme" value="light" />
+            <label for="theme-light">Light (Dusk)</label>
+          </div>
+          <div class="field-row">
+            <input type="radio" id="theme-dark" name="theme" value="dark" />
+            <label for="theme-dark">Dark (Midnight)</label>
+          </div>
+          <div class="field-row">
+            <input type="radio" id="theme-browser" name="theme" value="browser" checked />
+            <label for="theme-browser">Use browser setting</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section id="cp-sound" class="cp-section" aria-labelledby="cp-sound-h">
+        <h2 id="cp-sound-h"><Icon name="speaker" size={16} /> Sound</h2>
+        <fieldset>
+          <legend>System sounds</legend>
+          <div class="field-row">
+            <input type="checkbox" id="cp-sound-on" data-cp-sound />
+            <label for="cp-sound-on">Play sounds (also in the taskbar tray)</label>
+          </div>
+        </fieldset>
+      </section>
+
+      <section id="cp-system" class="cp-section" aria-labelledby="cp-system-h">
+        <h2 id="cp-system-h"><Icon name="my-computer" size={16} /> System: Device Manager</h2>
+        <div class="cp-devices doc sunken-panel">
+          <ul class="tree-view">
+            <li>
+              <details open>
+                <summary><span>{profile.name}: {profile.title}</span></summary>
+                <ul>
+                  {groups.map(([group, items]) => (
+                    <li>
+                      <details>
+                        <summary><span>{group}</span><span class="cp-count">({items.length})</span></summary>
+                        <ul>
+                          {items.map((s) => <li>{s}</li>)}
+                        </ul>
+                      </details>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </Window>
+</Desktop>
+
+<style>
+  .cp { display: grid; gap: 16px; padding: 4px; font-family: var(--font-chrome); font-size: 11px; }
+  .cp-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 8px;
+    list-style: none;
+    background: var(--doc-bg);
+  }
+  .cp-icons a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 76px;
+    min-height: var(--touch);
+    padding: 4px;
+    color: var(--doc-ink);
+    text-decoration: none;
+  }
+  .cp-icons a:hover span,
+  .cp-icons a:focus-visible span { background: var(--select-bg); color: var(--select-ink); }
+  .cp-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  .cp-section:target h2 { color: var(--link-blue); }
+  .cp-section fieldset { display: grid; gap: 8px; }
+  .cp-section .field-row { margin: 0; }
+  @media (pointer: coarse) { .cp-section .field-row { min-height: var(--touch); } }
+
+  .cp-devices { padding: 8px 12px; overflow: visible; }
+  .cp-devices .tree-view {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    font-family: var(--font-doc);
+    font-size: var(--step-0);
+    line-height: 1.5;
+    color: var(--doc-ink);
+  }
+  .cp-devices .tree-view li { margin-top: 2px; }
+  .cp-devices .tree-view summary {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    min-height: 1.75em;
+    cursor: pointer;
+  }
+  .cp-devices .tree-view summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .cp-devices .tree-view details > summary::before {
+    float: none;
+    flex: none;
+    margin: 0;
+    background-color: var(--doc-bg);
+    border-color: var(--doc-muted);
+    color: var(--doc-ink);
+  }
+  .cp-devices .tree-view ul details > summary::before { margin-left: -22px; }
+  .cp-devices .tree-view ul { border-left-color: var(--doc-muted); }
+  .cp-devices .tree-view ul > li::before { border-bottom-color: var(--doc-muted); top: 0.875em; }
+  .cp-devices .tree-view ul > li:last-child::after { background: var(--doc-bg); top: calc(0.875em + 1px); }
+  .cp-count { color: var(--doc-muted); }
+  @media (pointer: coarse) {
+    .cp-devices .tree-view summary { min-height: var(--touch); }
+    .cp-devices .tree-view ul > li:has(> details)::before { top: calc(var(--touch) / 2); }
+    .cp-devices .tree-view ul > li:last-child:has(> details)::after { top: calc(var(--touch) / 2 + 1px); }
+  }
+</style>
+
+<script>
+  import { getThemeChoice, setThemeChoice, type ThemeChoice } from '../scripts/settings';
+  import { soundOn, setSound } from '../scripts/sound';
+
+  // The window may be swapped in and out by the router, so look elements up
+  // on demand and listen at the document once.
+  function paint() {
+    for (const r of document.querySelectorAll<HTMLInputElement>(`input[name="theme"][value="${getThemeChoice()}"]`)) r.checked = true;
+    for (const box of document.querySelectorAll<HTMLInputElement>('[data-cp-sound]')) box.checked = soundOn();
+  }
+
+  document.addEventListener('change', (e) => {
+    const t = e.target as HTMLInputElement;
+    if (t.name === 'theme' && t.checked) setThemeChoice(t.value as ThemeChoice);
+    else if (t.matches('[data-cp-sound]')) setSound(t.checked);
+  });
+  addEventListener('sound-change', paint);
+  document.addEventListener('astro:page-load', paint);
+  paint();
+</script>

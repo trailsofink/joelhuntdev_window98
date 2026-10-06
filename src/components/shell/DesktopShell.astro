@@ -1,6 +1,151 @@
 ---
-// Placeholder. Desktop icons, taskbar and Start menu land here.
-import type { AppId } from '../../apps/registry';
+// The persistent desktop: icons, the background-window layer, the taskbar,
+// the Start menu and the Shut Down dialogs. It lives inside #desktop, which
+// is transition:persist, so it renders once per full page load and survives
+// every client-side navigation. Behavior lives in src/scripts/shell.ts and the
+// window manager in src/scripts/wm.ts; everything here works as plain links
+// first.
+import { apps, type AppDef, type AppId } from '../../apps/registry';
+import { profile } from '../../data/profile';
+import Icon from '../Icon.astro';
+import '../../styles/shell.css';
+
 interface Props { active: AppId }
+const { active } = Astro.props;
+
+const all: readonly AppDef[] = apps;
+const desktopApps = all.filter((a) => a.desktop);
+const inGroup = (g: AppDef['start']) => all.filter((a) => a.start === g);
+// The Start menu names documents the way a visitor would ("Resume", not "Resume.doc").
+const startLabel = (a: AppDef) => a.label.replace(/\.doc$/, '');
+
+const submenus = [
+  { id: 'programs', label: 'Programs', icon: 'folder', items: inGroup('programs') },
+  { id: 'games', label: 'Games', icon: 'game-folder', items: inGroup('games') },
+  { id: 'settings', label: 'Settings', icon: 'control-panel', items: inGroup('settings') },
+];
 ---
-<nav aria-label="Start menu"><a href="/">About Me</a></nav>
+
+<ul class="desk-icons" aria-label="Desktop">
+  {desktopApps.map((a) => (
+    <li>
+      <a class="desk-icon" href={a.route} data-app={a.id}>
+        <Icon name={a.icon} size={32} />
+        <span class="desk-label">{a.label}</span>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<!-- Windows the visitor opened on earlier pages wait here between navigations
+     (see src/scripts/wm.ts). Empty on the server. -->
+<div id="win-layer" class="win-layer"></div>
+
+<div class="taskbar" data-taskbar>
+  <button
+    type="button"
+    class="start-button"
+    id="start-button"
+    popovertarget="start-menu"
+    aria-expanded="false"
+    aria-controls="start-menu"
+  >
+    <Icon name="start-flag" size={16} />
+    <span>Start</span>
+  </button>
+  <span class="taskbar-divider" aria-hidden="true"></span>
+
+  <ul class="task-buttons" aria-label="Open windows">
+    {all.map((a) => (
+      <li data-app={a.id} hidden={a.id !== active}>
+        <button type="button" class="task-button" data-app={a.id} aria-pressed={a.id === active ? 'true' : 'false'}>
+          <Icon name={a.icon} size={16} />
+          <span class="task-label">{a.label}</span>
+        </button>
+      </li>
+    ))}
+  </ul>
+
+  <div class="tray">
+    <button type="button" class="tray-sound" id="tray-sound" aria-pressed="false" aria-label="Sound" title="Sound">
+      <span class="tray-on"><Icon name="speaker" size={16} /></span>
+      <span class="tray-off"><Icon name="speaker-muted" size={16} /></span>
+    </button>
+    <time class="tray-clock" id="tray-clock" aria-live="off"></time>
+  </div>
+</div>
+
+<nav id="start-menu" class="start-menu" popover aria-label="Start menu">
+  <div class="start-rail" aria-hidden="true"><span>Joel Hunt <b>98</b></span></div>
+  <ul class="start-list" data-level="0">
+    {inGroup('top').map((a) => (
+      <li><a class="start-item" href={a.route}><Icon name={a.icon} size={32} /><span>{startLabel(a)}</span></a></li>
+    ))}
+    {submenus.map((s) => (
+      <li class="has-sub">
+        <button type="button" class="start-item" aria-expanded="false" aria-controls={`start-sub-${s.id}`}>
+          <Icon name={s.icon} size={32} /><span>{s.label}</span><span class="start-arrow" aria-hidden="true"></span>
+        </button>
+        <ul class="start-sub" id={`start-sub-${s.id}`}>
+          {s.items.map((a) => (
+            <li><a class="start-item" href={a.route}><Icon name={a.icon} size={16} /><span>{startLabel(a)}</span></a></li>
+          ))}
+        </ul>
+      </li>
+    ))}
+    <li class="start-sep" aria-hidden="true"></li>
+    <li>
+      <a class="start-item" href={profile.resumePdf} download="Joel_Hunt_Resume.pdf">
+        <Icon name="pdf" size={32} /><span>Download resume (PDF)</span>
+      </a>
+    </li>
+    <li class="start-sep" aria-hidden="true"></li>
+    <li>
+      <button type="button" class="start-item" data-shutdown aria-haspopup="dialog">
+        <Icon name="shut-down" size={32} /><span>Shut Down…</span>
+      </button>
+    </li>
+  </ul>
+</nav>
+
+<dialog id="shutdown-dialog" class="window shutdown-dialog" aria-labelledby="shutdown-title">
+  <div class="title-bar">
+    <h2 class="title-bar-text" id="shutdown-title">Shut Down Windows</h2>
+    <div class="title-bar-controls">
+      <button type="button" aria-label="Close" data-dialog-cancel></button>
+    </div>
+  </div>
+  <form method="dialog" class="window-body shutdown-body">
+    <Icon name="shut-down" size={32} />
+    <fieldset class="shutdown-options">
+      <legend>What do you want the computer to do?</legend>
+      <div class="field-row">
+        <input type="radio" id="sd-off" name="shutdown" value="off" checked />
+        <label for="sd-off">Shut down</label>
+      </div>
+      <div class="field-row">
+        <input type="radio" id="sd-restart" name="shutdown" value="restart" />
+        <label for="sd-restart">Restart (replays the boot)</label>
+      </div>
+      <div class="field-row">
+        <input type="radio" id="sd-logoff" name="shutdown" value="logoff" />
+        <label for="sd-logoff">Log off (closes every window)</label>
+      </div>
+    </fieldset>
+    <div class="shutdown-actions">
+      <button type="submit" class="default" value="ok" autofocus>OK</button>
+      <button type="button" data-dialog-cancel>Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="safe-off" class="safe-off" aria-labelledby="safe-off-title">
+  <p class="safe-off-title" id="safe-off-title">It's now safe to turn off your computer.</p>
+  <p class="safe-off-quote">Not all those who wander are lost.</p>
+  <button type="button" class="safe-off-button" data-power-on>Turn it back on</button>
+</dialog>
+
+<script>
+  import '../../scripts/wm';
+  import '../../scripts/shell';
+</script>
