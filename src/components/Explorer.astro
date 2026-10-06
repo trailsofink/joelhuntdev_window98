@@ -1,0 +1,266 @@
+---
+// A Windows 98 Explorer view: address bar, an optional details pane (the
+// "web view" panel on the left) and the folder's files.
+//
+// Phones get a vertical list with 44px rows; once the window is wide enough
+// (a container query, so it follows the window rather than the viewport) the
+// files become a large-icon grid and the details pane sits on the left.
+//
+// Items are plain links, so the folder works without JavaScript. An item with
+// `body` instead of `href` is a text file that opens in place (<details>).
+// An item with neither is inert, e.g. a deleted file in the Recycle Bin.
+import Icon from './Icon.astro';
+
+export interface ExplorerItem {
+  label: string;
+  icon: string;
+  href?: string;
+  /** Adds the download attribute (true, or a file name). */
+  download?: boolean | string;
+  /** Opens in a new tab and marks the link as external. */
+  external?: boolean;
+  /** Shown in the details view and as the link's description. */
+  description?: string;
+  /** Paragraphs of a text file shown in place when the item is opened. */
+  body?: string[];
+}
+
+interface Props {
+  /** Address bar text, e.g. "C:\\Joel Hunt\\Projects\\". */
+  path: string;
+  items: ExplorerItem[];
+  /** "icons": large icons (list on phones). "details": name + description rows. */
+  view?: 'icons' | 'details';
+  /** Accessible name for the file list. */
+  label?: string;
+  /** Small icon in the address bar. */
+  icon?: string;
+}
+
+const { path, items, view = 'icons', label = 'Files', icon = 'folder-open' } = Astro.props;
+const hasDetails = Astro.slots.has('details');
+// Stable per folder, so builds are reproducible.
+const uid = [...path].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7).toString(36);
+---
+
+<div class:list={['explorer', `explorer--${view}`, { 'explorer--with-details': hasDetails }]}>
+  <div class="explorer-address">
+    <span class="explorer-address-label" id={`addr-${uid}`}>Address</span>
+    <div class="explorer-address-field" aria-labelledby={`addr-${uid}`}>
+      <Icon name={icon} size={16} />
+      <span>{path}</span>
+    </div>
+  </div>
+
+  <div class="explorer-pane">
+    {hasDetails && (
+      <aside class="explorer-details doc" aria-label="Details">
+        <slot name="details" />
+      </aside>
+    )}
+
+    <ul class="explorer-files" aria-label={label}>
+      {items.map((item, i) => {
+        const descId = item.description ? `desc-${uid}-${i}` : undefined;
+        return (
+          <li class:list={['explorer-item', { 'explorer-item--text': item.body }]}>
+            {item.body ? (
+              <details class="explorer-textfile">
+                <summary class="explorer-link">
+                  <Icon name={item.icon} size={32} />
+                  <span class="explorer-label">{item.label}</span>
+                </summary>
+                <div class="explorer-notepad doc">
+                  {item.body.map((p) => <p>{p}</p>)}
+                </div>
+              </details>
+            ) : item.href ? (
+              <a
+                class="explorer-link"
+                href={item.href}
+                download={item.download === true ? '' : item.download || undefined}
+                target={item.external ? '_blank' : undefined}
+                rel={item.external ? 'noopener' : undefined}
+                aria-describedby={descId}
+              >
+                <Icon name={item.icon} size={32} />
+                <span class="explorer-label">
+                  {item.label}
+                  {item.external && <span class="visually-hidden"> (opens in a new tab)</span>}
+                </span>
+              </a>
+            ) : (
+              <div class="explorer-link explorer-link--inert">
+                <Icon name={item.icon} size={32} />
+                <span class="explorer-label">{item.label}</span>
+              </div>
+            )}
+            {item.description && (
+              <p class="explorer-desc" id={descId}>{item.description}</p>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  </div>
+</div>
+
+<style>
+  .explorer {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 100%;
+  }
+
+  /* Address bar */
+  .explorer-address {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-chrome);
+    font-size: 11px;
+    color: var(--text-color);
+  }
+  .explorer-address-field {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 4px;
+    background: var(--doc-bg);
+    color: var(--doc-ink);
+    box-shadow:
+      inset -1px -1px var(--button-highlight),
+      inset 1px 1px var(--button-shadow),
+      inset -2px -2px var(--button-face),
+      inset 2px 2px var(--window-frame);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .explorer-address-field span { overflow: hidden; text-overflow: ellipsis; }
+
+  /* Sunken white content pane */
+  .explorer-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--doc-bg);
+    color: var(--doc-ink);
+    box-shadow:
+      inset -1px -1px var(--button-highlight),
+      inset 1px 1px var(--button-shadow),
+      inset -2px -2px var(--button-face),
+      inset 2px 2px var(--window-frame);
+    padding: 2px;
+    min-width: 0;
+  }
+
+  .explorer-details {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--button-shadow);
+  }
+  .explorer-details :global(> :first-child) { margin-top: 0; }
+  .explorer-details :global(> :last-child) { margin-bottom: 0; }
+
+  /* Phone layout: a vertical list with 44px rows */
+  .explorer-files {
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+  }
+  .explorer-item { min-width: 0; }
+  .explorer-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: var(--touch);
+    padding: 4px 6px;
+    color: var(--doc-ink);
+    text-decoration: none;
+    font-family: var(--font-doc);
+    font-size: var(--step-0);
+    line-height: 1.25;
+    cursor: pointer;
+  }
+  .explorer-link--inert { cursor: default; }
+  summary.explorer-link { list-style: none; }
+  summary.explorer-link::-webkit-details-marker { display: none; }
+  .explorer-label {
+    padding: 1px 3px;
+    overflow-wrap: anywhere;
+  }
+  a.explorer-link:hover .explorer-label,
+  summary.explorer-link:hover .explorer-label { text-decoration: underline; }
+  .explorer-link:focus-visible .explorer-label,
+  .explorer-textfile[open] > summary .explorer-label {
+    background: var(--select-bg);
+    color: var(--select-ink);
+  }
+
+  .explorer-desc {
+    margin: -6px 0 6px 48px;
+    font-family: var(--font-doc);
+    font-size: var(--step-0);
+    color: var(--doc-muted);
+    line-height: 1.45;
+  }
+  .explorer--icons .explorer-desc { display: none; }
+
+  .explorer-notepad {
+    margin: 4px 6px 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--button-shadow);
+  }
+  .explorer-notepad p { margin: 0 0 0.8em; }
+  .explorer-notepad p:last-child { margin-bottom: 0; }
+
+  /* Wide windows: details pane on the left, large-icon grid on the right */
+  @container (min-width: 540px) {
+    .explorer--with-details .explorer-pane {
+      flex-direction: row;
+      align-items: stretch;
+    }
+    .explorer--with-details .explorer-details {
+      flex: 0 0 230px;
+      border-bottom: 0;
+      border-right: 1px solid var(--button-shadow);
+    }
+
+    .explorer--icons .explorer-files {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+      align-content: start;
+      gap: 6px 2px;
+      padding: 10px 6px;
+    }
+    .explorer--icons .explorer-link {
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px 2px;
+      text-align: center;
+      font-family: var(--font-chrome);
+      font-size: 11px;
+      min-height: 0;
+    }
+    .explorer--icons .explorer-item--text:has(details[open]) { grid-column: 1 / -1; }
+    .explorer--icons .explorer-textfile[open] > summary {
+      flex-direction: row;
+      justify-content: flex-start;
+      text-align: left;
+    }
+
+    .explorer--details .explorer-files { padding: 8px; }
+    .explorer--details .explorer-item { border-bottom: 1px dotted var(--button-shadow); padding-bottom: 4px; }
+  }
+
+  @media (pointer: coarse) {
+    .explorer-link { min-height: var(--touch); }
+  }
+</style>

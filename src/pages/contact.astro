@@ -1,0 +1,165 @@
+---
+import Desktop from '../layouts/Desktop.astro';
+import Window from '../components/Window.astro';
+import Icon from '../components/Icon.astro';
+import { profile } from '../data/profile';
+import '../components/content/content.css';
+
+const linkedin = profile.links.find((l) => l.id === 'linkedin')!;
+const github = profile.links.find((l) => l.id === 'github')!;
+---
+
+<Desktop
+  title="Contact"
+  description={`Email Joel Hunt at ${profile.email}, or find him on LinkedIn and GitHub. Write a message here and it opens in your email app.`}
+  app="contact"
+>
+  <Window
+    app="contact"
+    menu={['File', 'Edit', 'View', 'Insert', 'Format', 'Tools', 'Message', 'Help']}
+    status={['Composes in your own email app']}
+  >
+    <mail-compose>
+      <form class="compose" method="get" action={`mailto:${profile.email}`}>
+        <div class="compose-toolbar">
+          <button type="submit" class="compose-send">
+            <Icon name="mail" size={16} /> Send
+          </button>
+        </div>
+
+        <div class="compose-headers">
+          <span class="compose-label" id="to-label">To:</span>
+          <div class="compose-to">
+            <span class="compose-to-field" aria-labelledby="to-label">{profile.email}</span>
+            <copy-text data-text={profile.email}>
+              <button type="button" hidden>Copy</button>
+              <span class="copy-status" role="status" aria-live="polite"></span>
+            </copy-text>
+          </div>
+
+          <label class="compose-label" for="subject">Subject:</label>
+          <input id="subject" name="subject" type="text" autocomplete="off" placeholder="Hello from your portfolio" />
+        </div>
+
+        <label class="visually-hidden" for="body">Message</label>
+        <textarea id="body" name="body" class="compose-body" rows="10" placeholder="Write your message here."></textarea>
+      </form>
+    </mail-compose>
+
+    <div class="doc compose-foot">
+      <p>Prefer a different channel? Joel is also on <a href={linkedin.href} rel="noopener" target="_blank">LinkedIn<span class="visually-hidden"> (opens in a new tab)</span></a> and <a href={github.href} rel="noopener" target="_blank">GitHub<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>
+    </div>
+  </Window>
+</Desktop>
+
+<script>
+  // Send builds a properly encoded mailto: link (a plain GET form would turn
+  // spaces into "+"). Without JavaScript the form still submits to mailto:.
+  class MailCompose extends HTMLElement {
+    connectedCallback() {
+      const form = this.querySelector('form');
+      if (!form || form.dataset.ready) return;
+      form.dataset.ready = '1';
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = new FormData(form);
+        const params = (['subject', 'body'] as const)
+          .map((k) => [k, String(data.get(k) ?? '').trim()] as const)
+          .filter(([, v]) => v)
+          .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+          .join('&');
+        window.location.href = form.action + (params ? `?${params}` : '');
+      });
+    }
+  }
+
+  // Copy button, revealed only when scripts run. Falls back to selecting the
+  // text with execCommand where the async clipboard API isn't available.
+  class CopyText extends HTMLElement {
+    connectedCallback() {
+      const button = this.querySelector('button');
+      const status = this.querySelector('.copy-status');
+      const text = this.dataset.text ?? '';
+      if (!button || button.dataset.ready) return;
+      button.dataset.ready = '1';
+      button.hidden = false;
+      button.addEventListener('click', async () => {
+        let ok = false;
+        try {
+          await navigator.clipboard.writeText(text);
+          ok = true;
+        } catch {
+          const area = document.createElement('textarea');
+          area.value = text;
+          area.setAttribute('readonly', '');
+          area.style.position = 'fixed';
+          area.style.opacity = '0';
+          document.body.append(area);
+          area.select();
+          try { ok = document.execCommand('copy'); } catch { ok = false; }
+          area.remove();
+        }
+        if (status) status.textContent = ok ? 'Copied' : 'Select the address to copy it';
+        window.setTimeout(() => { if (status) status.textContent = ''; }, 2500);
+      });
+    }
+  }
+
+  if (!customElements.get('mail-compose')) customElements.define('mail-compose', MailCompose);
+  if (!customElements.get('copy-text')) customElements.define('copy-text', CopyText);
+</script>
+
+<style>
+  mail-compose, copy-text { display: block; }
+  copy-text { display: inline-flex; align-items: center; gap: 6px; }
+
+  .compose { display: flex; flex-direction: column; gap: 6px; }
+  .compose-toolbar {
+    display: flex;
+    gap: 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--button-shadow);
+  }
+  .compose-send { display: inline-flex; align-items: center; gap: 4px; }
+
+  .compose-headers {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 6px 8px;
+  }
+  .compose-label { font-family: var(--font-chrome); font-size: 11px; color: var(--text-color); }
+  .compose-to { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+  .compose-to-field {
+    flex: 1 1 12em;
+    min-width: 0;
+    padding: 3px 4px;
+    background: var(--doc-bg);
+    color: var(--doc-ink);
+    box-shadow: var(--border-field);
+    font-family: var(--font-doc);
+    font-size: var(--step-0);
+    user-select: all;
+    overflow-wrap: anywhere;
+  }
+  .copy-status { font-family: var(--font-chrome); font-size: 11px; color: var(--text-color); }
+
+  .compose input[type="text"],
+  .compose-body {
+    width: 100%;
+    font-family: var(--font-doc);
+    font-size: var(--step-0);
+    background: var(--doc-bg);
+    color: var(--doc-ink);
+  }
+  .compose input[type="text"] { height: auto; padding: 3px 4px; }
+  .compose-body { min-height: 12em; resize: vertical; padding: 6px; line-height: 1.5; }
+  .compose ::placeholder { color: var(--doc-muted); }
+
+  .compose-foot { margin-top: 8px; padding: 10px 12px; }
+  .compose-foot p { margin: 0; }
+
+  @media (pointer: coarse) {
+    .compose button, .compose input[type="text"] { min-height: var(--touch); }
+  }
+</style>

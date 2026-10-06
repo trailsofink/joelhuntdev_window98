@@ -1,0 +1,87 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
+import Desktop from '../../../layouts/Desktop.astro';
+import Window from '../../../components/Window.astro';
+import { folders } from '../../../components/content/folders';
+import '../../../components/content/content.css';
+
+export const getStaticPaths = (async () => {
+  const studies = await getCollection('projects');
+  return studies.map((study) => {
+    const [folder, slug] = study.id.split('/');
+    return { params: { folder, slug }, props: { study } };
+  });
+}) satisfies GetStaticPaths;
+
+interface Props { study: CollectionEntry<'projects'> }
+const { study } = Astro.props;
+const { Content } = await render(study);
+const { title, summary, cover, coverAlt, stats, links } = study.data;
+const folder = folders[study.data.folder];
+
+const siblings = (await getCollection('projects', (p) => p.data.folder === folder.id)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const index = siblings.findIndex((s) => s.id === study.id);
+const next = siblings[(index + 1) % siblings.length];
+---
+
+<Desktop title={`${title} (${folder.name})`} description={summary} app="projects">
+  <Window
+    app="projects"
+    title={`${title}.doc - WordPad`}
+    doc
+    menu={['File', 'Edit', 'View', 'Insert', 'Format', 'Help']}
+    status={stats}
+  >
+    <article class="doc-page">
+      <p class="doc-meta">
+        <a href="/projects">Projects</a> › <a href={`/projects/${folder.id}`}>{folder.name}</a>
+      </p>
+      <p class="doc-lede">{summary}</p>
+      <p class="doc-note">
+        {folder.context}
+        {folder.site && <> <a href={folder.site.href} rel="noopener" target="_blank">{folder.site.label}<span class="visually-hidden"> (opens in a new tab)</span></a></>}
+      </p>
+
+      {cover && (
+        <figure class="doc-cover">
+          <Picture
+            src={cover}
+            alt={coverAlt ?? ''}
+            formats={['avif', 'webp']}
+            fallbackFormat="webp"
+            widths={[480, 800, 1200, 1600]}
+            sizes="(min-width: 1000px) 900px, 100vw"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </figure>
+      )}
+
+      <Content />
+
+      {links.length > 0 && (
+        <section aria-labelledby="study-links">
+          <h2 id="study-links">See it live</h2>
+          <ul>
+            {links.map((l) => (
+              <li><a href={l.href} rel="noopener" target="_blank">{l.label}<span class="visually-hidden"> (opens in a new tab)</span></a></li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <p class="doc-meta study-nav">
+        <a href={`/projects/${folder.id}`}>Back to {folder.name}</a>
+        {next.id !== study.id && <> · Next: <a href={`/projects/${next.id}`}>{next.data.title}</a></>}
+      </p>
+    </article>
+  </Window>
+</Desktop>
+
+<style>
+  .study-nav { margin-top: 2em; padding-top: 0.75em; border-top: 1px solid var(--button-shadow); }
+</style>

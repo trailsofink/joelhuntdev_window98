@@ -1,0 +1,43 @@
+---
+import Desktop from '../layouts/Desktop.astro';
+import Window from '../components/Window.astro';
+import Explorer, { type ExplorerItem } from '../components/Explorer.astro';
+import '../components/content/content.css';
+
+const items: ExplorerItem[] = [
+  {
+    label: 'my_precious_cypress_suite.bak',
+    icon: 'text-doc',
+    description: 'A Cypress suite that checked nothing. Replaced by 113 Playwright tests.',
+  },
+  {
+    label: 'four_competing_type_systems.css',
+    icon: 'text-doc',
+    description: 'Merged into one set of Figma text styles, across 728 files.',
+  },
+  {
+    label: 'hardcoded_colors.css',
+    icon: 'text-doc',
+    description: 'Hard-coded colors in 619 files, replaced with design tokens. A lint rule keeps them out.',
+  },
+];
+---
+
+<Desktop
+  title="Recycle Bin"
+  description="Things Joel Hunt deleted from Bulqit's codebase on purpose: an old test suite, four type systems and a lot of hard-coded colors."
+  app="recycle-bin"
+>
+  <Window app="recycle-bin" status={[`${items.length} objects`, 'Restore is disabled']}>
+    <Explorer path={'C:\\RECYCLED\\'} items={items} view="details" icon="recycle-bin-full" label="Deleted files">
+      <Fragment slot="details">
+        <h2 class="folder-name">Recycle Bin</h2>
+        <p>Files deleted from Bulqit's codebase. They aren't coming back.</p>
+      </Fragment>
+    </Explorer>
+  </Window>
+</Desktop>
+
+<style>
+  .folder-name { font-size: var(--step-1); margin: 0 0 0.5em; }
+</style>

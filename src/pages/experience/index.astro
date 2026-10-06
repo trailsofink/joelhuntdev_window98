@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import Desktop from '../../layouts/Desktop.astro';
+import Window from '../../components/Window.astro';
+import Explorer, { type ExplorerItem } from '../../components/Explorer.astro';
+import '../../components/content/content.css';
+
+const roles = (await getCollection('experience')).sort((a, b) => a.data.order - b.data.order);
+const items: ExplorerItem[] = roles.map((r) => ({
+  label: `${r.data.company}.doc`,
+  icon: 'wordpad-doc',
+  href: `/experience/${r.id}`,
+  description: `${r.data.role}, ${r.data.start} – ${r.data.end}`,
+}));
+---
+
+<Desktop
+  title="Work Experience"
+  description="Joel Hunt's six roles since 2020, from web designer to Director of Product Engineering at Bulqit. Open each one for the details."
+  app="experience"
+>
+  <Window app="experience" status={[`${items.length} objects`]}>
+    <Explorer path={'C:\\Joel Hunt\\Work Experience\\'} items={items} view="details" label="Roles">
+      <Fragment slot="details">
+        <h2 class="folder-name">Work Experience</h2>
+        <p>Six roles since 2020, most recent first. Each file opens the role's full description.</p>
+        <p>For everything on one page, open <a href="/resume">Resume.doc</a>.</p>
+      </Fragment>
+    </Explorer>
+  </Window>
+</Desktop>
+
+<style>
+  .folder-name { font-size: var(--step-1); margin: 0 0 0.5em; }
+</style>

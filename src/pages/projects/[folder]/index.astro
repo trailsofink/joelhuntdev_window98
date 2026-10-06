@@ -1,0 +1,45 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import Desktop from '../../../layouts/Desktop.astro';
+import Window from '../../../components/Window.astro';
+import Explorer, { type ExplorerItem } from '../../../components/Explorer.astro';
+import { folders, folderIds, type FolderId } from '../../../components/content/folders';
+import '../../../components/content/content.css';
+
+export const getStaticPaths = (() =>
+  folderIds.map((folder) => ({ params: { folder } }))) satisfies GetStaticPaths;
+
+const folder = folders[Astro.params.folder as FolderId];
+const studies = (await getCollection('projects', (p) => p.data.folder === folder.id)).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const items: ExplorerItem[] = studies.map((s) => ({
+  label: `${s.data.title}.doc`,
+  icon: 'wordpad-doc',
+  href: `/projects/${s.id}`,
+  description: s.data.summary,
+}));
+---
+
+<Desktop title={`${folder.name} projects`} description={folder.description} app="projects">
+  <Window app="projects" title={folder.name} status={[`${items.length} objects`]}>
+    <Explorer path={`C:\\Joel Hunt\\Projects\\${folder.name}\\`} items={items} view="details" label={`${folder.name} case studies`}>
+      <Fragment slot="details">
+        <h2 class="folder-name">{folder.name}</h2>
+        <p class="folder-tag">{folder.tagline}</p>
+        <p>{folder.context}</p>
+        <ul class="doc-links">
+          {folder.site && <li><a href={folder.site.href} rel="noopener" target="_blank">{folder.site.label}<span class="visually-hidden"> (opens in a new tab)</span></a></li>}
+          <li><a href={folder.experience}>Role details</a></li>
+          <li><a href="/projects">Up to Projects</a></li>
+        </ul>
+      </Fragment>
+    </Explorer>
+  </Window>
+</Desktop>
+
+<style>
+  .folder-name { font-size: var(--step-1); margin: 0 0 0.2em; }
+  .folder-tag { color: var(--doc-muted); font-size: var(--step--1); }
+</style>
