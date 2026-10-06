@@ -1,3 +1,533 @@
 ---
-// Placeholder. The boot sequence (POST screen, splash, sound opt-in) lands here.
+// First-visit boot sequence: BIOS POST -> "Starting Windows 98..." -> splash
+// -> fade to the desktop. Everything here is server-rendered; CSS animation
+// delays run the timeline and src/scripts/boot.ts only adds the counters,
+// skip, sound and cleanup. The inline script below decides, before the
+// overlay or the desktop is parsed, whether to show it at all.
+import { skills } from '../../data/profile';
+
+/* ---------------------------------------------------------------------------
+ * POST copy. Edit freely. `at` is when the line appears, in ms from page load.
+ * - `value` appears `beat` ms after the line (the "detecting ..." pause).
+ * - `count` ticks a number from 0 up to `count` between `at` and `until`.
+ * - `dots` prints that many dots one at a time after the text.
+ * - `table: true` draws the System Configuration box from profile skills.
+ * ------------------------------------------------------------------------- */
+type PostLine = {
+  at: number;
+  text?: string;
+  amber?: boolean;
+  value?: string;
+  beat?: number;
+  count?: number;
+  until?: number;
+  unit?: string;
+  dots?: number;
+  table?: true;
+};
+
+const POST: PostLine[] = [
+  { at: 0, text: 'JoelBIOS v6.0 (C) 2020-2026', amber: true },
+  { at: 0, text: 'Full-Stack & UX Product Engineer' },
+  { at: 150, text: '' },
+  { at: 150, text: 'Main Processor : ', value: 'TypeScript @ 6 yrs', beat: 0 },
+  { at: 260, text: 'Memory Test    : ', count: 646, until: 820, unit: ' Linear issues OK' },
+  { at: 860, text: 'Merge Test     : ', count: 454, until: 1220, unit: ' PRs merged OK' },
+  { at: 1260, text: '' },
+  { at: 1260, text: 'Detecting Primary Master   ... ', value: 'React 19 / Next.js 16', beat: 110 },
+  { at: 1360, text: 'Detecting Primary Slave    ... ', value: 'Node.js / PostgreSQL (Neon) / Drizzle', beat: 110 },
+  { at: 1460, text: 'Detecting Secondary Master ... ', value: 'Playwright, 113 tests', beat: 110 },
+  { at: 1560, text: 'Detecting Secondary Slave  ... ', value: 'Lighthouse, desktop 99', beat: 110 },
+  { at: 1720, table: true },
+  { at: 2040, text: 'Verifying DMI Pool Data ', dots: 6 },
+  { at: 2340, text: 'One does not simply walk into production. Booting anyway.', amber: true },
+];
+
+/** Stage timings in ms from page load. The whole sequence ends at fadeAt + fade. */
+const T = { starting: 2650, splash: 3200, fadeAt: 4300, fade: 450 };
+
+// System Configuration box, built from the skill groups in profile.ts.
+// The wide box is 64 columns; the narrow one (phones) lists counts only.
+const plain = (s: string) => s.replace(/\s*\([^)]*\)/g, '');
+function fit(items: readonly string[], max: number) {
+  let out = '';
+  for (const item of items.map(plain)) {
+    const next = out ? `${out}, ${item}` : item;
+    if (next.length > max) break;
+    out = next;
+  }
+  return out;
+}
+// VT323 has no box-drawing glyphs, so the frame characters come from the
+// fallback monospace font in their own spans and the rules are clipped to the
+// cell width (in VT323 `ch`): the box stays square whatever font draws it.
+const RULE = '─'.repeat(80);
+const groups = Object.entries(skills);
+const tables = [
+  { variant: 'wide', cols: 62, rows: groups.map(([g, items]) => ` ${g.padEnd(18)}${fit(items, 41)}`) },
+  {
+    variant: 'narrow',
+    cols: 30,
+    rows: groups.map(([g, items]) => {
+      const n = `${items.length} OK`;
+      return ` ${g} ${'.'.repeat(Math.max(1, 26 - g.length - n.length))} ${n}`;
+    }),
+  },
+];
+
+const ms = (n: number) => `${n}ms`;
+
+// Pixel art as strings, drawn into SVG as one rect per run of '#'.
+function pixels(map: string[], ch = '#') {
+  const rects: { x: number; y: number; w: number }[] = [];
+  map.forEach((row, y) => {
+    for (const m of row.matchAll(new RegExp(`${ch}+`, "g"))) {
+      rects.push({ x: m.index ?? 0, y, w: m[0].length });
+    }
+  });
+  return rects;
+}
+
+// Energy-saver-style badge: a crescent moon and a spark (Midnight 98).
+const moon = pixels([
+  '.....####.......',
+  '...###..........',
+  '..###.......#...',
+  '.###.......###..',
+  '.###........#...',
+  '###.............',
+  '###.............',
+  '###.............',
+  '###.............',
+  '.###..........#.',
+  '.####........##.',
+  '..#####....###..',
+  '...#########....',
+  '.....#####......',
+]);
+
+// Splash window-mark: a tiny app window with an amber title bar and a moon.
+const MARK = [
+  '################',
+  '#AAAAAAAAAAA#A#A',
+  '################',
+  '#BBBBBBBBBBBBBB#',
+  '#BBBBBBBBBBMMBB#',
+  '#BBBBBBBBBMMBBB#',
+  '#BBBBBBBBBMMBBB#',
+  '#BBBBBBBBBBMMBB#',
+  '#BBBBBBBBBBBBBB#',
+  '#BBBBBBBBBBBBBB#',
+  '################',
+  '.##############.',
+];
+const markFrame = pixels(MARK);
+const markTitle = pixels(MARK, 'A');
+const markPane = pixels(MARK, 'B');
+const markMoon = pixels(MARK, 'M');
+
+// Deterministic star field for the splash sky (positions in vw/vh).
+let seed = 98;
+const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const stars = (n: number) =>
+  Array.from({ length: n }, () => `${(rand() * 100).toFixed(1)}vw ${(rand() * 70).toFixed(1)}vh 0 ${rand() > 0.85 ? 1 : 0}px var(--crt-ink)`).join(',');
+const starsA = stars(36);
+const starsB = stars(22);
+
+const timing = `--t-start:${ms(T.starting)};--t-splash:${ms(T.splash)};--t-fade:${ms(T.fadeAt)};--fade:${ms(T.fade)}`;
 ---
+
+<script is:inline>
+  // Decide before first paint: first visit, motion allowed, no ?noboot.
+  // If storage is unavailable we can't remember the visit, so don't boot.
+  (() => {
+    if (window.__bootChecked) return;
+    window.__bootChecked = 1;
+    try {
+      if (localStorage.getItem('booted')) return;
+    } catch {
+      return;
+    }
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (new URLSearchParams(location.search).has('noboot')) return;
+    document.documentElement.dataset.boot = '';
+    const l = document.createElement('link');
+    l.rel = 'preload';
+    l.as = 'font';
+    l.type = 'font/woff2';
+    l.crossOrigin = '';
+    l.href = '/fonts/vt323-latin-400-normal.woff2';
+    document.head.append(l);
+  })();
+</script>
+
+<div id="boot" class="boot" role="dialog" aria-modal="true" aria-label="Starting up" tabindex="-1" style={timing}>
+  <!-- Layers stack bottom to top; each upper layer hides itself on cue. -->
+  <div class="boot-layer boot-splash" aria-hidden="true">
+    <div class="sky-stars" style={`box-shadow:${starsA}`}></div>
+    <div class="sky-stars sky-stars--b" style={`box-shadow:${starsB}`}></div>
+    <div class="splash-center">
+      <svg class="splash-mark" viewBox="0 0 16 12" shape-rendering="crispEdges">
+        <g class="mk-frame">{markFrame.map((r) => <rect x={r.x} y={r.y} width={r.w} height="1" />)}</g>
+        <g class="mk-title">{markTitle.map((r) => <rect x={r.x} y={r.y} width={r.w} height="1" />)}</g>
+        <g class="mk-pane">{markPane.map((r) => <rect x={r.x} y={r.y} width={r.w} height="1" />)}</g>
+        <g class="mk-moon">{markMoon.map((r) => <rect x={r.x} y={r.y} width={r.w} height="1" />)}</g>
+      </svg>
+      <p class="splash-title"><span class="splash-name">Joel Hunt</span><span class="splash-ver">98</span><span class="splash-shine"></span></p>
+      <p class="splash-sub">Full-Stack &amp; UX Product Engineer</p>
+    </div>
+    <div class="splash-bar"><div></div></div>
+  </div>
+
+  <div class="boot-layer boot-starting">
+    <p>Starting Windows 98...</p>
+  </div>
+
+  <div class="boot-layer boot-post">
+    <svg class="post-badge" viewBox="0 0 16 14" shape-rendering="crispEdges" aria-hidden="true">
+      {moon.map((r) => <rect x={r.x} y={r.y} width={r.w} height="1" />)}
+    </svg>
+    <span class="post-badge-label" aria-hidden="true">NIGHT OWL<br />POWER SAVER</span>
+    <div class="post-lines">
+      {POST.map((line) =>
+        line.table ? (
+          tables.map((t) => (
+            <div class={`post-table post-table--${t.variant}`} style={`--cols:${t.cols}`}>
+              <p class="l row" style={`--d:${ms(line.at)}`}>
+                <span class="bx" aria-hidden="true">┌</span>
+                <span class="cell rule"><span class="bx">{RULE}</span><span class="rule-title">System Configuration</span><span class="bx">{RULE}</span></span>
+                <span class="bx" aria-hidden="true">┐</span>
+              </p>
+              {t.rows.map((row, i) => (
+                <p class="l row" style={`--d:${ms(line.at + (i + 1) * 22)}`}>
+                  <span class="bx" aria-hidden="true">│</span><span class="cell">{row}</span><span class="bx" aria-hidden="true">│</span>
+                </p>
+              ))}
+              <p class="l row" style={`--d:${ms(line.at + (t.rows.length + 1) * 22)}`} aria-hidden="true">
+                <span class="bx">└</span><span class="cell rule"><span class="bx">{RULE}</span></span><span class="bx">┘</span>
+              </p>
+            </div>
+          ))
+        ) : (
+          <p class:list={['l', { amber: line.amber, blank: !line.text }]} style={`--d:${ms(line.at)}`}>
+            {line.text}
+            {line.count !== undefined && (
+              <span class="amber">
+                <span class="count" data-count={line.count} data-from={line.at} data-until={line.until}>{line.count}</span>{line.unit}
+              </span>
+            )}
+            {line.value && <span class="l amber" style={`--d:${ms(line.at + (line.beat ?? 0))}`}>{line.value}</span>}
+            {line.dots && Array.from({ length: line.dots }, (_, i) => <span class="l" style={`--d:${ms(line.at + 40 * (i + 1))}`}>.</span>)}
+          </p>
+        ),
+      )}
+    </div>
+  </div>
+
+  <div class="boot-bar">
+    <p class="boot-offer">
+      <span class="boot-hint">Press <span class="amber">any key</span> to skip</span>
+      <span class="boot-sound">
+        Enable sound?{' '}
+        <button type="button" data-sound="on" aria-pressed="false"><span aria-hidden="true">[</span>Y<span aria-hidden="true">]</span>es</button>
+        /
+        <button type="button" data-sound="off" aria-pressed="false"><span aria-hidden="true">[</span>N<span aria-hidden="true">]</span>o</button>
+        <span class="boot-sound-state amber" aria-live="polite"></span>
+      </span>
+    </p>
+    <button type="button" class="boot-skip">Skip</button>
+  </div>
+</div>
+
+<script>
+  import '../../scripts/boot';
+</script>
+
+<style>
+  /* Hidden unless the inline script above chose to boot. */
+  .boot { display: none; }
+
+  :global(html[data-boot]) .boot {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    overflow: hidden;
+    background: var(--crt-bg);
+    color: var(--crt-ink);
+    font-family: var(--font-crt);
+    font-size: clamp(15px, 1.4vw + 9px, 24px);
+    line-height: 1.2;
+    outline: none;
+    animation: boot-out var(--fade) ease-in var(--t-fade) forwards;
+  }
+  :global(html[data-boot]) .boot.is-skipping {
+    animation: boot-skip 350ms ease-in forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(html[data-boot]) .boot { display: none; }
+  }
+
+  .boot p { margin: 0; }
+  .amber { color: var(--crt-amber); }
+
+  .boot-layer {
+    position: absolute;
+    inset: 0;
+    background: var(--crt-bg);
+  }
+
+  /* ---- POST ------------------------------------------------------------ */
+  .boot-post {
+    padding: max(16px, env(safe-area-inset-top)) 16px 96px;
+    animation: boot-hide 1ms var(--t-start) forwards;
+  }
+  @media (min-width: 720px) {
+    .boot-post { padding: 32px 40px 112px; }
+  }
+  .post-lines { position: relative; }
+  .l {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    animation: boot-show 1ms var(--d, 0ms) both;
+  }
+  .blank { height: 1.2em; }
+  .count { white-space: pre; }
+
+  .post-badge {
+    float: right;
+    width: clamp(40px, 6vw, 72px);
+    height: auto;
+    margin: 0 0 4px 12px;
+    fill: var(--crt-amber);
+  }
+  .post-badge-label {
+    position: absolute;
+    top: calc(max(16px, env(safe-area-inset-top)) + clamp(40px, 6vw, 72px) * 0.9);
+    right: 16px;
+    font-size: 0.6em;
+    line-height: 1;
+    text-align: center;
+    color: var(--crt-amber);
+    border: 1px solid var(--crt-amber);
+    padding: 2px 4px;
+  }
+  @media (min-width: 720px) {
+    .post-badge-label { top: calc(32px + clamp(40px, 6vw, 72px) * 0.9); right: 40px; }
+  }
+
+  .post-table { margin: 0.4em 0; }
+  .post-table .row {
+    display: flex;
+    white-space: pre;
+    overflow-wrap: normal;
+    line-height: 1.15;
+  }
+  .post-table .cell { width: calc(var(--cols) * 1ch); flex: none; overflow: hidden; }
+  .post-table .rule { display: flex; }
+  .post-table .rule .bx { flex: 1 1 0; overflow: hidden; }
+  .rule-title { flex: none; padding: 0 0.5ch; }
+  .bx { font-family: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace; }
+  .post-table--wide { display: none; }
+  @media (min-width: 720px) {
+    .post-table--wide { display: block; }
+    .post-table--narrow { display: none; }
+  }
+
+  /* ---- Bottom bar: skip hint, sound offer, Skip button ----------------- */
+  .boot-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px max(24px, env(safe-area-inset-bottom));
+  }
+  @media (min-width: 720px) {
+    .boot-bar { padding: 16px 40px 40px; }
+  }
+  .boot-offer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 24px;
+    animation: boot-hide 1ms var(--t-splash) forwards;
+  }
+  .boot-sound { white-space: nowrap; }
+  .boot button {
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 0;
+    padding: 0 2px;
+    margin: 0 0.3em;
+    min-width: 0;
+    min-height: 0;
+    box-shadow: none;
+    cursor: pointer;
+  }
+  .boot button[data-sound] { color: var(--crt-amber); }
+  .boot button[data-sound]:hover,
+  .boot button[aria-pressed="true"] {
+    background: var(--crt-amber);
+    color: var(--crt-bg);
+  }
+  .boot .boot-skip {
+    flex: none;
+    border: 1px solid currentColor;
+    padding: 2px 12px;
+  }
+  .boot .boot-skip:hover { background: var(--crt-ink); color: var(--crt-bg); }
+  .boot button:focus-visible { outline: 2px solid var(--crt-amber); outline-offset: 2px; }
+  @media (pointer: coarse) {
+    .boot button { min-height: var(--touch); min-width: var(--touch); }
+  }
+  .boot-sound-state:not(:empty) { margin-left: 0.5em; }
+
+  /* ---- Starting Windows 98... ------------------------------------------ */
+  .boot-starting {
+    padding: max(16px, env(safe-area-inset-top)) 16px;
+    color: var(--title-ink);
+    animation: boot-hide 1ms var(--t-splash) forwards;
+  }
+  @media (min-width: 720px) {
+    .boot-starting { padding: 32px 40px; }
+  }
+  .boot-starting p::after {
+    content: "_";
+    animation: blink 0.5s steps(1) infinite;
+  }
+
+  /* ---- Splash ----------------------------------------------------------- */
+  .boot-splash {
+    display: grid;
+    place-items: center;
+    background:
+      radial-gradient(120% 55% at 50% 108%, var(--dialog-blue-light), transparent 70%),
+      linear-gradient(var(--crt-bg), var(--dialog-blue) 45%, var(--dialog-blue-light));
+    color: var(--title-ink);
+    font-family: var(--font-doc);
+  }
+  .sky-stars {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    border-radius: 50%;
+    animation: twinkle 1.6s ease-in-out var(--t-splash) infinite alternate;
+  }
+  .sky-stars--b { animation-duration: 1.1s; animation-delay: calc(var(--t-splash) + 0.4s); }
+
+  .splash-center {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: clamp(8px, 2vh, 20px);
+    padding: 0 16px 8vh;
+    text-align: center;
+  }
+  .splash-mark {
+    width: clamp(64px, 10vw, 128px);
+    height: auto;
+    image-rendering: pixelated;
+    animation: rise 700ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--t-splash) both;
+  }
+  .mk-frame { fill: var(--crt-bg); }
+  .mk-title { fill: var(--crt-amber); }
+  .mk-pane { fill: var(--dialog-blue-light); }
+  .mk-moon { fill: var(--title-ink); }
+
+  .splash-title {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.12em;
+    padding: 0.2em 0.15em 0.05em;
+    font-weight: 700;
+    font-size: clamp(44px, 9vw, 128px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-shadow: 0.04em 0.04em 0 var(--crt-bg);
+  }
+  .splash-name {
+    display: block;
+    animation: boot-splash 700ms cubic-bezier(0.2, 0.8, 0.2, 1) var(--t-splash) both;
+  }
+  .splash-ver {
+    display: block;
+    font-size: 0.62em;
+    color: var(--crt-amber);
+    text-shadow:
+      0.04em 0.04em 0 var(--dialog-blue),
+      0.08em 0.08em 0 var(--crt-bg);
+    animation: drop 650ms cubic-bezier(0.3, 1.6, 0.5, 1) calc(var(--t-splash) + 220ms) both;
+  }
+  /* One pass of light across the title. */
+  .splash-shine {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .splash-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    background: linear-gradient(100deg, transparent, var(--title-ink), transparent);
+    opacity: 0.35;
+    transform: translateX(-120%) skewX(-12deg);
+    animation: sweep 900ms ease-in-out calc(var(--t-splash) + 350ms) both;
+  }
+  .splash-sub {
+    font-size: clamp(16px, 1.2vw + 10px, 22px);
+    letter-spacing: 0.04em;
+    color: var(--title-ink-inactive);
+    animation: rise 700ms ease-out calc(var(--t-splash) + 150ms) both;
+  }
+
+  .splash-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: clamp(8px, 1.2vh, 14px);
+    overflow: hidden;
+    background: var(--crt-bg);
+  }
+  .splash-bar div {
+    width: 200%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--crt-bg) 0,
+      var(--dialog-blue-light) 12.5%,
+      var(--crt-amber) 25%,
+      var(--dialog-blue-light) 37.5%,
+      var(--crt-bg) 50%
+    );
+    animation: scroll 900ms linear var(--t-splash) infinite;
+  }
+
+  /* ---- Keyframes --------------------------------------------------------- */
+  @keyframes boot-show { from { visibility: hidden; } }
+  @keyframes boot-hide { to { visibility: hidden; } }
+  @keyframes boot-out {
+    to { opacity: 0; visibility: hidden; }
+  }
+  @keyframes boot-skip {
+    to { opacity: 0; visibility: hidden; }
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes twinkle { to { opacity: 0.35; } }
+  @keyframes rise { from { transform: translateY(24px) scale(0.92); } }
+  @keyframes boot-splash { from { transform: translateX(-12%); } }
+  @keyframes drop {
+    from { transform: translateY(-70%) scale(1.5) rotate(-8deg); }
+  }
+  @keyframes sweep { to { transform: translateX(320%) skewX(-12deg); } }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+</style>
