@@ -1,0 +1,269 @@
+---
+// The Solitaire table. The felt, the toolbar and every empty pile render on
+// the server at their final size, so nothing shifts when the cards arrive.
+// element.ts registers <klondike-solitaire>; the rules and renderer load
+// with import() when it connects.
+const foundations = [0, 1, 2, 3];
+const columns = [0, 1, 2, 3, 4, 5, 6];
+---
+
+<klondike-solitaire>
+  <div class="sol-bar">
+    <button type="button" data-cmd="new" disabled>New game</button>
+    <button type="button" data-cmd="undo" disabled>Undo</button>
+    <label class="sol-draw">Draw
+      <select data-cmd="draw" disabled>
+        <option value="1">One</option>
+        <option value="3">Three</option>
+      </select>
+    </label>
+    <button type="button" data-cmd="finish" hidden>Auto-finish</button>
+  </div>
+  <div class="sol-felt">
+    <div class="sol-top">
+      <button type="button" class="sol-pile" data-pile="stock" aria-label="Stock"></button>
+      <button type="button" class="sol-pile" data-pile="waste" aria-label="Waste pile, empty"></button>
+      <span></span>
+      {foundations.map((i) => (
+        <button type="button" class="sol-pile sol-found" data-pile={`f${i}`} aria-label={`Foundation ${i + 1}, empty`}></button>
+      ))}
+    </div>
+    <div class="sol-tab">
+      {columns.map((i) => (
+        <button type="button" class="sol-pile" data-pile={`t${i}`} aria-label={`Column ${i + 1}`}></button>
+      ))}
+    </div>
+  </div>
+  <p class="visually-hidden" aria-live="polite" data-live></p>
+</klondike-solitaire>
+
+<script>
+  import './element';
+</script>
+
+<style is:global>
+  /* Component-scoped palette. These are the only literal colors in the game:
+     green felt, near-white card stock and an original pixel card back. */
+  klondike-solitaire {
+    --sol-felt: #0b6b3a;
+    --sol-felt-hi: #148a4d;
+    --sol-slot: rgba(255, 255, 255, 0.4);
+    --sol-face: #fcfcf7;
+    --sol-ink: #111827;
+    --sol-red: #b4161b;
+    --sol-edge: #1c2433;
+    --sol-back-a: #1f3f8f;
+    --sol-back-b: #2a52b0;
+    --sol-back-c: rgba(255, 255, 255, 0.16);
+    --sol-back-mark: #ffb547;
+    --sol-shadow: rgba(0, 0, 0, 0.35);
+    display: block;
+    container-type: inline-size;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  :root[data-theme="dark"] klondike-solitaire {
+    --sol-felt: #0a3d2e;
+    --sol-felt-hi: #11553f;
+    --sol-slot: rgba(255, 255, 255, 0.3);
+    --sol-face: #f3f4ee;
+    --sol-red: #b01419;
+    --sol-edge: #02050b;
+    --sol-back-a: #1b2f6e;
+    --sol-back-b: #25408f;
+  }
+
+  klondike-solitaire .sol-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+    white-space: nowrap;
+  }
+  klondike-solitaire .sol-bar button {
+    min-width: 0;
+    padding: 0 10px;
+  }
+  klondike-solitaire .sol-draw {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  @media (pointer: coarse) {
+    klondike-solitaire .sol-bar button,
+    klondike-solitaire .sol-bar select { min-height: var(--touch); }
+  }
+
+  klondike-solitaire .sol-felt {
+    --gap: clamp(3px, 1.5cqi, 12px);
+    --pad: clamp(4px, 2cqi, 14px);
+    --cw: clamp(40px, min(12.5vw, (100cqi - 2 * var(--pad) - 6 * var(--gap)) / 7), 72px);
+    --ch: calc(var(--cw) * 1.4);
+    --od: calc(var(--cw) * 0.12);
+    --ou: calc(var(--cw) * 0.3);
+    --ox: calc(var(--cw) * 0.26);
+    --r: calc(var(--cw) * 0.07);
+    position: relative;
+    overflow: hidden;
+    padding: var(--pad);
+    background: radial-gradient(120% 90% at 50% 20%, var(--sol-felt-hi), var(--sol-felt) 70%);
+    box-shadow: inset 1px 1px var(--button-shadow), inset -1px -1px var(--button-highlight);
+  }
+  klondike-solitaire .sol-top,
+  klondike-solitaire .sol-tab {
+    display: grid;
+    grid-template-columns: repeat(7, var(--cw));
+    gap: var(--gap);
+    justify-content: center;
+  }
+  klondike-solitaire .sol-tab {
+    margin-top: calc(var(--gap) * 2);
+    min-height: calc(var(--ch) + 6 * var(--od) + 7 * var(--ou));
+  }
+
+  /* Piles are real buttons; undo 98.css's bevels for them. */
+  klondike-solitaire .sol-felt .sol-pile.sol-pile,
+  klondike-solitaire .sol-felt .sol-pile.sol-pile:active {
+    position: relative;
+    display: block;
+    width: var(--cw);
+    height: var(--ch);
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--r);
+    background: none;
+    box-shadow: none;
+    text-shadow: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  klondike-solitaire .sol-felt .sol-tab .sol-pile.sol-pile { height: auto; min-height: var(--ch); }
+  klondike-solitaire .sol-pile:focus:not(:focus-visible) { outline: none; }
+  klondike-solitaire .sol-pile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  klondike-solitaire .sol-pile::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--cw);
+    height: var(--ch);
+    box-sizing: border-box;
+    border: 1px solid var(--sol-slot);
+    border-radius: var(--r);
+  }
+  klondike-solitaire .sol-found::after,
+  klondike-solitaire [data-pile="stock"]::after {
+    content: "A";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--cw);
+    line-height: var(--ch);
+    text-align: center;
+    color: var(--sol-slot);
+    font: bold calc(var(--cw) * 0.4) / var(--ch) var(--font-doc);
+  }
+  klondike-solitaire [data-pile="stock"]::after { content: "↻"; }
+
+  /* Cards */
+  klondike-solitaire .sol-card {
+    position: absolute;
+    z-index: 1;
+    left: calc(var(--x, 0) * var(--ox));
+    top: calc(var(--d, 0) * var(--od) + var(--u, 0) * var(--ou));
+    width: var(--cw);
+    height: var(--ch);
+    box-sizing: border-box;
+    border: 1px solid var(--sol-edge);
+    border-radius: var(--r);
+    background: var(--sol-face);
+    color: var(--sol-ink);
+    font-family: var(--font-doc);
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: 0 1px 1px var(--sol-shadow);
+    touch-action: none;
+  }
+  klondike-solitaire .sol-red { color: var(--sol-red); }
+  klondike-solitaire .sol-i {
+    position: absolute;
+    left: 6%;
+    top: 4%;
+    font-size: calc(var(--cw) * 0.25);
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+  }
+  klondike-solitaire .sol-i2 { left: auto; top: auto; right: 6%; bottom: 4%; transform: rotate(180deg); }
+  klondike-solitaire .sol-pip {
+    position: absolute;
+    inset: 22% 0 10%;
+    display: grid;
+    place-items: center;
+    font-size: calc(var(--cw) * 0.5);
+  }
+  klondike-solitaire .sol-court {
+    inset: 26% 18% 16%;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    font-size: calc(var(--cw) * 0.38);
+  }
+  @container (max-width: 420px) {
+    klondike-solitaire .sol-i2 { display: none; }
+  }
+
+  /* Original card back: a two-tone pixel dither under a coarse pixel plaid,
+     a white border and a tiny pixel-font "J" in boot-screen amber. */
+  klondike-solitaire .sol-card.sol-down {
+    background:
+      repeating-conic-gradient(var(--sol-back-c) 0 25%, transparent 0 50%) 0 0 / 8px 8px,
+      repeating-conic-gradient(var(--sol-back-a) 0 25%, var(--sol-back-b) 0 50%) 0 0 / 2px 2px;
+    box-shadow: inset 0 0 0 2px var(--sol-face), 0 1px 1px var(--sol-shadow);
+  }
+  klondike-solitaire .sol-down > * { display: none; }
+  klondike-solitaire .sol-down::after {
+    content: "J";
+    position: absolute;
+    right: 12%;
+    bottom: 6%;
+    color: var(--sol-back-mark);
+    font: 11px/1 var(--font-chrome);
+  }
+
+  klondike-solitaire .sol-sel,
+  klondike-solitaire .sol-drop > .sol-card:last-child,
+  klondike-solitaire .sol-drop:empty::before {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--sol-face);
+  }
+  klondike-solitaire .sol-cur { outline: 2px dashed var(--accent); outline-offset: 1px; }
+  klondike-solitaire .sol-lift { visibility: hidden; }
+  klondike-solitaire .sol-ghost {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 50;
+    pointer-events: none;
+    will-change: transform;
+  }
+  klondike-solitaire .sol-ghost .sol-card { box-shadow: 2px 4px 6px var(--sol-shadow); }
+  klondike-solitaire .sol-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 60;
+    cursor: pointer;
+  }
+
+  klondike-solitaire .sol-dialog { padding: 0; max-width: min(320px, calc(100vw - 32px)); }
+  klondike-solitaire .sol-dialog .title-bar-text { margin: 0; font-size: inherit; }
+  klondike-solitaire .sol-dialog p { font: var(--step-0) / 1.5 var(--font-doc); margin: 8px 4px 16px; }
+  klondike-solitaire .sol-dlg-btns { display: flex; justify-content: flex-end; gap: 6px; }
+  @media (pointer: coarse) {
+    klondike-solitaire .sol-dlg-btns button { min-height: var(--touch); }
+  }
+</style>
