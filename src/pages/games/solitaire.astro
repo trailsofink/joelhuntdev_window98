@@ -1,0 +1,14 @@
+---
+import Desktop from '../../layouts/Desktop.astro';
+import Window from '../../components/Window.astro';
+import Solitaire from '../../games/solitaire/Solitaire.astro';
+---
+<Desktop
+  title="Solitaire"
+  description="Play Klondike Solitaire in Joel Hunt's Windows 98-style portfolio: draw one or three, drag or tap to move, undo, and auto-finish."
+  app="solitaire"
+>
+  <Window app="solitaire" menu={['Game', 'Help']} status={['Moves: 0', 'Time: 0:00']}>
+    <Solitaire />
+  </Window>
+</Desktop>
