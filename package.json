@@ -22,10 +22,6 @@
     "@vercel/speed-insights": "^2.0.0",
     "astro": "^7.3.6"
   },
-  "allowScripts": {
-    "esbuild": true,
-    "sharp": true
-  },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "postcss": "^8.5.29",

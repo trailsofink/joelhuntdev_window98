@@ -1,0 +1,6 @@
+assets-raw
+.claude
+node_modules
+dist
+.astro
+.env*
