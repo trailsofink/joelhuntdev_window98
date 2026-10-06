@@ -8,6 +8,8 @@
 //   - data-app is the registry id; the taskbar and Start menu key off it.
 //   - The title is the page's <h1>, so each page has exactly one.
 //   - Close is a link to "/" (About Me) so it works without JS.
+//   - A `menu` slot holds real menu controls (games); otherwise the `menu`
+//     prop renders disabled labels.
 //   - Content goes in the default slot; pass `doc` for a document pane
 //     (white page, readable font) instead of plain chrome.
 import { getApp, type AppId } from '../apps/registry';
@@ -28,6 +30,7 @@ const { app: appId, title, menu = [], status = [], doc = false } = Astro.props;
 const app = getApp(appId);
 const heading = title ?? app.title;
 const headingId = `win-title-${app.id}`;
+const hasMenuSlot = Astro.slots.has('menu');
 ---
 
 <win-window
@@ -48,7 +51,11 @@ const headingId = `win-title-${app.id}`;
     </div>
   </div>
 
-  {menu.length > 0 && (
+  {hasMenuSlot ? (
+    <div class="win-menu">
+      <slot name="menu" />
+    </div>
+  ) : menu.length > 0 && (
     <div class="win-menu" role="menubar" aria-label={`${heading} menu`}>
       {menu.map((m) => <span role="menuitem" aria-disabled="true">{m}</span>)}
     </div>

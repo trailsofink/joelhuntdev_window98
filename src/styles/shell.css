@@ -58,7 +58,7 @@ win-window[data-min] { display: none; }
   win-window .title-bar { touch-action: none; }
 }
 
-.window .title-bar { flex: none; user-select: none; -webkit-user-select: none; gap: 4px; }
+.window .title-bar { flex: none; min-width: 0; user-select: none; -webkit-user-select: none; gap: 4px; }
 .window .title-bar-text,
 .title-bar-text {
   margin: 0;
@@ -98,7 +98,7 @@ win-window[data-min] { display: none; }
 .title-bar-controls :is(button, .win-close):focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 @media (pointer: coarse) {
-  .title-bar-controls :is(button, .win-close) {
+  .window .title-bar-controls :is(button[aria-label], .win-close) {
     min-width: var(--touch);
     min-height: var(--touch);
     background-position: center;
@@ -116,8 +116,20 @@ win-window[data-min] { display: none; }
   font-family: var(--font-chrome);
   font-size: 11px;
 }
-.win-menu > * { padding: 3px 7px; }
-.win-menu > *::first-letter { text-decoration: underline; }
+.win-menu > span { padding: 3px 7px; }
+.win-menu > span::first-letter { text-decoration: underline; }
+/* Real menu controls from the window's `menu` slot: flat until pressed. */
+.win-menu :where(button) {
+  min-width: 0;
+  min-height: 20px;
+  padding: 0 7px;
+  background: none;
+  box-shadow: none;
+}
+.win-menu :where(button[aria-expanded="true"], button:active) {
+  box-shadow: var(--border-sunken-outer);
+}
+@media (pointer: coarse) { .win-menu :where(button) { min-height: var(--touch); } }
 
 .window > .win-body {
   flex: 1 1 auto;
