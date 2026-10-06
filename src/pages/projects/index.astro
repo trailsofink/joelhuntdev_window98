@@ -1,0 +1,36 @@
+---
+import Desktop from '../../layouts/Desktop.astro';
+import Window from '../../components/Window.astro';
+import Explorer, { type ExplorerItem } from '../../components/Explorer.astro';
+import { folders } from '../../components/content/folders';
+import { profile } from '../../data/profile';
+import '../../components/content/content.css';
+
+const github = profile.links.find((l) => l.id === 'github')!;
+const items: ExplorerItem[] = [
+  { label: 'Bulqit', icon: 'folder', href: '/projects/bulqit', description: folders.bulqit.tagline },
+  { label: 'FiveQ', icon: 'folder', href: '/projects/fiveq', description: folders.fiveq.tagline },
+  { label: 'GitHub', icon: 'github', href: github.href, external: true, description: github.handle },
+];
+---
+
+<Desktop
+  title="Projects"
+  description="Case studies from Joel Hunt's work at Bulqit and FiveQ: front-end rebuilds, vendor activation, performance, testing, Algolia search and a live radio player."
+  app="projects"
+>
+  <Window app="projects" status={[`${items.length} objects`]}>
+    <Explorer path={'C:\\Joel Hunt\\Projects\\'} items={items} label="Project folders">
+      <Fragment slot="details">
+        <h2 class="folder-name">Projects</h2>
+        <p>Case studies from two jobs. Each one covers the problem, what Joel did and the result, with screenshots.</p>
+        <p><strong>Bulqit:</strong> six case studies from a home-services startup.</p>
+        <p><strong>FiveQ:</strong> two features built for client websites.</p>
+      </Fragment>
+    </Explorer>
+  </Window>
+</Desktop>
+
+<style>
+  .folder-name { font-size: var(--step-1); margin: 0 0 0.5em; }
+</style>
