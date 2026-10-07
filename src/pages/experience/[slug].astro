@@ -16,6 +16,7 @@ interface Props { role: CollectionEntry<'experience'> }
 const { role } = Astro.props;
 const { Content } = await render(role);
 const { company, start, end, blurb } = role.data;
+const file = `${role.data.file ?? company}.doc`;
 const folder = (role.id in folders ? folders[role.id as FolderId] : null);
 const projects = folder
   ? (await getCollection('projects', (p) => p.data.folder === folder.id)).sort((a, b) => a.data.order - b.data.order)
@@ -27,8 +28,8 @@ const projects = folder
   description={`Joel Hunt as ${role.data.role} at ${company}, ${start} – ${end}. ${blurb}`}
   app="about"
 >
-  <Window app="about" title={`${company}.doc`} status={[`${start} – ${end}`]}>
-    <Explorer path={`C:\\Joel Hunt\\Work Experience\\${company}.doc`} icon="wordpad-doc" nav>
+  <Window app="about" title={file} status={[`${start} – ${end}`]}>
+    <Explorer path={`C:\\Joel Hunt\\Work Experience\\${file}`} icon="wordpad-doc" nav>
       <article class="doc-page">
         <p class="doc-lede"><strong>{role.data.role}</strong>, {company}</p>
         <p class="doc-meta">{start} – {end} · {blurb}</p>

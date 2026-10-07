@@ -32,7 +32,7 @@ Below the player sits the station's **programme schedule**: 123 entries with All
 
 ## A reusable player
 
-Joel also wrote a reusable audio and video player plugin in PHP, Tailwind CSS and JavaScript, with Google Analytics tracking. It is used on other FiveQ client sites too, such as hutchcraft.com.
+Joel also wrote a reusable audio and video player plugin in PHP, Tailwind CSS and JavaScript, with Google Analytics tracking. It is used on other Five Q client sites too, such as hutchcraft.com.
 
 ![An audio player card on hutchcraft.com on a phone, playing an episode with rewind, pause, fast-forward and a progress bar.](../../../assets/screens/fiveq-hutchcraft-player-mobile.webp)
 

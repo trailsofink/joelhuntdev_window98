@@ -33,7 +33,7 @@ export async function getTree(): Promise<TreeNode> {
         href: '/projects',
         icon: 'folder',
         children: folderIds.map((id) => ({
-          label: folders[id].name,
+          label: folders[id].dir,
           href: `/projects/${id}`,
           icon: 'folder',
           children: studies
@@ -45,7 +45,7 @@ export async function getTree(): Promise<TreeNode> {
         label: 'Work Experience',
         href: '/experience',
         icon: 'folder',
-        children: roles.map((r) => ({ label: `${r.data.company}.doc`, href: `/experience/${r.id}`, icon: 'wordpad-doc' })),
+        children: roles.map((r) => ({ label: `${r.data.file ?? r.data.company}.doc`, href: `/experience/${r.id}`, icon: 'wordpad-doc' })),
       },
       { label: 'Resume.doc', href: '/resume', icon: 'wordpad-doc' },
       { label: 'Joel_Hunt_Resume.pdf', href: profile.resumePdf, icon: 'pdf', download: 'Joel_Hunt_Resume.pdf' },

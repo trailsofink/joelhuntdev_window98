@@ -7,7 +7,7 @@ import '../../components/content/content.css';
 
 const roles = (await getCollection('experience')).sort((a, b) => a.data.order - b.data.order);
 const items: ExplorerItem[] = roles.map((r) => ({
-  label: `${r.data.company}.doc`,
+  label: `${r.data.file ?? r.data.company}.doc`,
   icon: 'wordpad-doc',
   href: `/experience/${r.id}`,
   description: `${r.data.role}, ${r.data.start} – ${r.data.end}`,

@@ -1,8 +1,8 @@
 ---
-title: Algolia search across FiveQ client sites
+title: Algolia search across Five Q client sites
 folder: fiveq
 order: 1
-summary: Joel built a reusable Algolia InstantSearch plugin for FiveQ's Kirby CMS platform, now live on wiersbe.com and hutchcraft.com, and used the same approach for Humanitas Institute's school finder.
+summary: Joel built a reusable Algolia InstantSearch plugin for Five Q's Kirby CMS platform, now live on wiersbe.com and hutchcraft.com, and used the same approach for Humanitas Institute's school finder.
 cover: ../../../assets/screens/fiveq-wiersbe-search.webp
 coverAlt: Search results for "joy" on wiersbe.com, with Content Type, Author, Year Published, Topic and Series filters beside a list of books and sermons.
 stats:
@@ -20,7 +20,7 @@ links:
 
 ## The problem
 
-FiveQ builds and runs client websites on its own Kirby CMS platform. Several clients publish large archives of sermons, books, articles and audio, and visitors need to narrow those down by type, author, year and topic.
+Five Q builds and runs client websites on its own Kirby CMS platform. Several clients publish large archives of sermons, books, articles and audio, and visitors need to narrow those down by type, author, year and topic.
 
 Building search separately for each site would mean solving the same problem again every time.
 

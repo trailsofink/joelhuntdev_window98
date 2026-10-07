@@ -8,6 +8,7 @@ const experience = defineCollection({
   loader: glob({ pattern: '*.md', base: './src/content/experience' }),
   schema: z.object({
     company: z.string(),
+    file: z.string().optional(), // file name in Work Experience, if not the company's ("Five_Q")
     role: z.string(),
     start: z.string(), // "May 2026", as printed on the resume
     end: z.string(),

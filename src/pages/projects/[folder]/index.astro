@@ -23,8 +23,8 @@ const items: ExplorerItem[] = studies.map((s) => ({
 ---
 
 <Desktop title={`${folder.name} projects`} description={folder.description} app="about">
-  <Window app="about" title={folder.name} status={[`${items.length} objects`]}>
-    <Explorer path={`C:\\Joel Hunt\\Projects\\${folder.name}\\`} items={items} view="details" label={`${folder.name} case studies`} nav>
+  <Window app="about" title={folder.dir} status={[`${items.length} objects`]}>
+    <Explorer path={`C:\\Joel Hunt\\Projects\\${folder.dir}\\`} items={items} view="details" label={`${folder.name} case studies`} nav>
       <Fragment slot="details">
         <h2 class="folder-name">{folder.name}</h2>
         <p class="folder-tag">{folder.tagline}</p>

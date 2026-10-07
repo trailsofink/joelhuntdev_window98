@@ -8,15 +8,15 @@ import '../../components/content/content.css';
 
 const github = profile.links.find((l) => l.id === 'github')!;
 const items: ExplorerItem[] = [
-  { label: 'Bulqit', icon: 'folder', href: '/projects/bulqit', description: folders.bulqit.tagline },
-  { label: 'FiveQ', icon: 'folder', href: '/projects/fiveq', description: folders.fiveq.tagline },
+  { label: folders.bulqit.dir, icon: 'folder', href: '/projects/bulqit', description: folders.bulqit.tagline },
+  { label: folders.fiveq.dir, icon: 'folder', href: '/projects/fiveq', description: folders.fiveq.tagline },
   { label: 'GitHub', icon: 'github', href: github.href, external: true, description: github.handle },
 ];
 ---
 
 <Desktop
   title="Projects"
-  description="Case studies from Joel Hunt's work at Bulqit and FiveQ: front-end rebuilds, vendor activation, performance, testing, Algolia search and a live radio player."
+  description="Case studies from Joel Hunt's work at Bulqit and Five Q: front-end rebuilds, vendor activation, performance, testing, Algolia search and a live radio player."
   app="about"
 >
   <Window app="about" title="Projects" status={[`${items.length} objects`]}>
@@ -25,7 +25,7 @@ const items: ExplorerItem[] = [
         <h2 class="folder-name">Projects</h2>
         <p>Case studies from two jobs. Each one covers the problem, what Joel did and the result, with screenshots.</p>
         <p><strong>Bulqit:</strong> six case studies from a home-services startup.</p>
-        <p><strong>FiveQ:</strong> two features built for client websites.</p>
+        <p><strong>Five Q:</strong> two features built for client websites.</p>
       </Fragment>
     </Explorer>
   </Window>
