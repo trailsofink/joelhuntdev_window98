@@ -15,8 +15,11 @@
   color-scheme: light;
 
   /* Desktop */
-  --desktop: #2f5d68;
+  --desktop: #52789e;
   --desktop-ink: #ffffff;
+  /* Focus ring for things sitting on the desktop itself, where the amber
+     accent is too close in value to the Dusk blue. */
+  --desktop-focus: #ffffff;
 
   /* Bevel chrome (98.css names) */
   --surface: #c3c9d3;
@@ -73,6 +76,7 @@
 
   --desktop: #0f172a;
   --desktop-ink: #e2e8f0;
+  --desktop-focus: #ffb547;
 
   --surface: #253248;
   --button-face: #33425c;

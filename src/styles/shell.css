@@ -187,7 +187,7 @@ win-window:not([data-resizable]) > .win-body { overflow: visible; }
   text-shadow: none;
 }
 .desk-icon.is-selected .icon { opacity: 0.75; }
-.desk-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+.desk-icon:focus-visible { outline: 2px solid var(--desktop-focus); outline-offset: 0; }
 
 /* Background windows wait here between navigations; it adds no box of its own. */
 .win-layer { display: contents; }
