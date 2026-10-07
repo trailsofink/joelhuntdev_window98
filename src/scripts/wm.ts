@@ -285,7 +285,22 @@ document.addEventListener('astro:before-swap', (e) => {
     if (!reclaim && w.dataset.url === inUrl) reclaim = w;
     else { w.remove(); stack = stack.filter((s) => s !== w); }
   }
+  if (layer()?.querySelector('win-window')) keepStyles(ev.newDocument);
 });
+
+// The router drops head elements the incoming page doesn't have, which would
+// strip the CSS of any window kept in the background (a game, a case study).
+// Copy the current page's stylesheets into the incoming head; the router sees
+// matching elements on both sides and leaves the live ones in place.
+function keepStyles(next: Document) {
+  const has = (el: Element) =>
+    el instanceof HTMLLinkElement
+      ? !!next.head.querySelector(`link[rel="stylesheet"][href="${CSS.escape(el.getAttribute('href') ?? '')}"]`)
+      : [...next.head.querySelectorAll('style')].some((s) => s.textContent === el.textContent);
+  for (const el of document.head.querySelectorAll('link[rel="stylesheet"], style')) {
+    if (!has(el)) next.head.append(next.importNode(el, true));
+  }
+}
 
 document.addEventListener('astro:after-swap', () => {
   const fresh = pageWin();
