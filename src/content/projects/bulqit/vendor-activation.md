@@ -33,13 +33,17 @@ Bidding lets a vendor price a whole Bulqit Block at once: one unit rate applies 
 
 *Bidding, as designed in Figma. The local seed data had no open bids, so this is the design frame.*
 
+![The vendor Inbox in the Figma design file: a list of member conversations, with a Proposal panel open for entering the service, one-time or recurring type, frequency, cost, start and end dates and a description.](../../../assets/screens/bulqit-inbox-proposal-figma.webp)
+
+*A recurring-service proposal in the inbox, from the lead designer's Figma file that Joel built in Next.js and React.*
+
+![The vendor Homes screen in the Figma design file: a list of active homes with Message buttons, and a detail panel with Share, Message and Call, the number of windows, vendor instructions and scope of work.](../../../assets/screens/bulqit-homes-figma.webp)
+
+*Homes, from the same Figma file: each home's vendor instructions and scope of work in one panel. House photos and the address are blurred.*
+
 ## Guided onboarding
 
 New vendors start with a short guided flow that explains what Bulqit offers them, then land on a dashboard with action items: set up banking, add an EIN, upload a business license. Each item has its own Setup button, so the next step is always visible.
-
-![The first onboarding step for vendors, headed "Become a Verified Bulqit Vendor.", explaining recurring block-level customers and guaranteed payouts.](../../../assets/screens/bulqit-vendor-onboarding.webp)
-
-*The first step of vendor onboarding.*
 
 ![The vendor dashboard: today's jobs, earnings and homes, followed by Action Items for banking, EIN and business license.](../../../assets/screens/bulqit-vendor-dashboard.webp)
 

@@ -33,7 +33,19 @@ Along the way he closed more than 300 UI, UX and usability tickets across the ve
 
 A redesign drifts unless the code holds it in place. Joel moved the front end onto Figma design tokens across 619 files and added a lint rule that rejects hard-coded colors, so new code can't quietly reintroduce them.
 
+![The Brand Palette page of Bulqit's Figma design system: Primary, Secondary, Tertiary, Success, Warning, Danger and Information color scales, each running from 25 to 950, with every swatch named after its Bulqit color.](../../../assets/screens/bulqit-figma-color-tokens.webp)
+
+*The Figma color tokens the front end was moved onto, enforced by a lint rule against hard-coded colors.*
+
 After launch, he merged four competing type systems into the Figma text styles, a change that touched 728 files. He also upgraded the app to Tailwind CSS 4 with no visual regressions.
+
+![The Typography page of the Figma design system: Hero, Page and Subtitle display styles and H1 to H6 headings, each set in Host Grotesk with its font size, line height and weight.](../../../assets/screens/bulqit-figma-text-styles.webp)
+
+*The Figma text styles that replaced four competing type systems across 728 files.*
+
+![An example layout from the Figma design system: the vendor Calendar's Upcoming tab, listing days with their number of stops, beside a route map and a Share popover. Names, house photos, addresses and a vendor logo are blurred.](../../../assets/screens/bulqit-figma-example-layout.webp)
+
+*An example layout from the lead designer's system, showing the tokens and text styles together on a vendor screen.*
 
 ## Result
 
