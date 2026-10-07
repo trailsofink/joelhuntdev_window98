@@ -55,10 +55,15 @@ const OWNED_VARS = new Set([
 function recolor(file, theme) {
   const svg = readFileSync(join(pkg, 'icon', file), 'utf8');
   const palette = THEMES[theme];
+  // Arrow buttons (scrollbars, selects) draw their outer bottom-right bevel in
+  // black before the black arrow; that edge is frame, not ink, or the button
+  // looks pressed in the dark theme.
+  let blackSeen = 0;
   return svg.replace(/(fill|stroke)="([^"]+)"/g, (match, attr, value) => {
     let role = ROLE_OF[value.toLowerCase()];
     if (!role) return match;
     if (role === 'ink' && BORDER_ICONS.has(file)) role = 'frame';
+    if (role === 'ink' && /^button-/.test(file) && blackSeen++ === 0) role = 'frame';
     return `${attr}="${palette[role]}"`;
   });
 }
