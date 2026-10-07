@@ -12,7 +12,7 @@ const rendered = await Promise.all(roles.map(async (r) => ({ role: r, ...(await 
 // The resume's full summary. profile.summary is its first two sentences.
 const summary = [
   profile.summary,
-  'In five months I completed 646 Linear issues and merged 454 pull requests across React, Next.js, TypeScript, Node.js and PostgreSQL, and built the company’s end-to-end test suite, CI quality gates, security fixes and performance work.',
+  'The redesign covered 45 routes in five weeks, built from the lead designer’s Figma system in React and Next.js, and along the way I built the company’s end-to-end test suite, CI quality gates, security fixes and performance work.',
   'A design background means the interfaces I build match the design system, meet WCAG 2.1 accessibility standards, and measurably change what users do.',
 ].join(' ');
 const linkedin = profile.links.find((l) => l.id === 'linkedin')!;
