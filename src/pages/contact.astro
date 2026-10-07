@@ -21,12 +21,6 @@ const github = profile.links.find((l) => l.id === 'github')!;
   >
     <mail-compose>
       <form class="compose" method="get" action={`mailto:${profile.email}`}>
-        <div class="compose-toolbar">
-          <button type="submit" class="compose-send">
-            <Icon name="mail" size={16} /> Send
-          </button>
-        </div>
-
         <div class="compose-headers">
           <span class="compose-label" id="to-label">To:</span>
           <div class="compose-to">
@@ -42,13 +36,19 @@ const github = profile.links.find((l) => l.id === 'github')!;
         </div>
 
         <label class="visually-hidden" for="body">Message</label>
-        <textarea id="body" name="body" class="compose-body" rows="10" placeholder="Write your message here."></textarea>
-      </form>
-    </mail-compose>
+        <textarea id="body" name="body" class="compose-body" placeholder="Write your message here."></textarea>
 
-    <div class="doc compose-foot">
-      <p>Prefer a different channel? Joel is also on <a href={linkedin.href} rel="noopener" target="_blank">LinkedIn<span class="visually-hidden"> (opens in a new tab)</span></a> and <a href={github.href} rel="noopener" target="_blank">GitHub<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>
-    </div>
+        <div class="compose-actions">
+          <button type="submit" class="compose-send">
+            <Icon name="mail" size={16} /> Send
+          </button>
+        </div>
+      </form>
+
+      <div class="doc compose-foot">
+        <p>Prefer a different channel? Joel is also on <a href={linkedin.href} rel="noopener" target="_blank">LinkedIn<span class="visually-hidden"> (opens in a new tab)</span></a> and <a href={github.href} rel="noopener" target="_blank">GitHub<span class="visually-hidden"> (opens in a new tab)</span></a>.</p>
+      </div>
+    </mail-compose>
   </Window>
 </Desktop>
 
@@ -110,16 +110,24 @@ const github = profile.links.find((l) => l.id === 'github')!;
 </script>
 
 <style>
-  mail-compose, copy-text { display: block; }
+  /* The compose window fills its body instead of scrolling it: the message
+     box takes the spare height, so Send and the footer stay in view. The body
+     still scrolls as a fallback once the message box hits its minimum. */
+  :global(win-window[data-app="contact"] > .win-body) {
+    display: flex;
+    flex-direction: column;
+  }
+  mail-compose {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
   copy-text { display: inline-flex; align-items: center; gap: 6px; }
 
-  .compose { display: flex; flex-direction: column; gap: 6px; }
-  .compose-toolbar {
-    display: flex;
-    gap: 4px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--button-shadow);
-  }
+  .compose { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+  .compose-actions { flex: none; display: flex; justify-content: flex-end; }
   .compose-send { display: inline-flex; align-items: center; gap: 4px; }
 
   .compose-headers {
@@ -153,10 +161,10 @@ const github = profile.links.find((l) => l.id === 'github')!;
     color: var(--doc-ink);
   }
   .compose input[type="text"] { height: auto; padding: 3px 4px; }
-  .compose-body { min-height: 12em; resize: vertical; padding: 6px; line-height: 1.5; }
+  .compose-body { flex: 1 1 auto; min-height: 6em; resize: none; padding: 6px; line-height: 1.5; }
   .compose ::placeholder { color: var(--doc-muted); }
 
-  .compose-foot { margin-top: 8px; padding: 10px 12px; }
+  .compose-foot { flex: none; padding: 10px 12px; }
   .compose-foot p { margin: 0; }
 
   @media (pointer: coarse) {
