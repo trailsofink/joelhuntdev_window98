@@ -42,4 +42,4 @@ jobs:
       - name: Lighthouse (${{ matrix.preset }})
         run: npx --yes @lhci/cli@0.15.x autorun --config=./lighthouserc.cjs
         env:
-          LHCI_PRESET: ${{ matrix.preset }}
+          LH_FORM_FACTOR: ${{ matrix.preset }}

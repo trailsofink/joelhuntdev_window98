@@ -1,7 +1,7 @@
 // Lighthouse CI gate: every category must score 95 or better. Runs against
-// the static build. LHCI_PRESET=desktop switches to desktop emulation; the
+// the static build. LH_FORM_FACTOR=desktop switches to desktop emulation; the
 // default is Lighthouse's mobile profile. Each URL is the median of 3 runs.
-const desktop = process.env.LHCI_PRESET === 'desktop';
+const desktop = process.env.LH_FORM_FACTOR === 'desktop';
 
 module.exports = {
   ci: {
