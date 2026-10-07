@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 // Static output. Vercel serves it from its CDN with no adapter needed.
 export default defineConfig({
-  site: 'https://joelhuntdev-window98.vercel.app',
+  site: 'https://joelhunt.dev',
   trailingSlash: 'never',
   integrations: [sitemap()],
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
