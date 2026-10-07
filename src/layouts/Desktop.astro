@@ -25,7 +25,10 @@ interface Props {
 
 const { title, description, app } = Astro.props;
 const pageTitle = title === profile.name ? `${profile.name}, ${profile.title}` : `${title} | ${profile.name}`;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+// With build.format "file", pages are rendered as /resume.html and
+// /index.html; Vercel serves them at clean URLs, so canonicals must match.
+const cleanPath = Astro.url.pathname.replace(/\.html$/, '').replace(/(^|\/)index$/, '$1') || '/';
+const canonical = new URL(cleanPath, Astro.site);
 const ogImage = new URL('/og.png', Astro.site);
 // Analytics scripts are served by Vercel's edge, so they only exist on Vercel
 // deployments; elsewhere (local preview, CI Lighthouse) they would 404.
