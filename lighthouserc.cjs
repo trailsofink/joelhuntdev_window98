@@ -8,11 +8,14 @@ module.exports = {
     collect: {
       staticDistDir: './dist',
       numberOfRuns: 3,
+      // The build writes resume.html etc. (build.format "file"). Vercel serves
+      // them at clean URLs; LHCI's static server does not, so name the files.
       url: [
         'http://localhost/',
-        'http://localhost/resume',
-        'http://localhost/projects/bulqit/lighthouse',
-        'http://localhost/games/minesweeper',
+        'http://localhost/resume.html',
+        'http://localhost/projects/bulqit/lighthouse.html',
+        'http://localhost/games/minesweeper.html',
+        'http://localhost/games/solitaire.html',
       ],
       settings: desktop ? { preset: 'desktop' } : {},
     },
