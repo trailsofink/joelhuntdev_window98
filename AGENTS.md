@@ -48,7 +48,8 @@ These pieces are shared across work streams, so change them only deliberately:
   - The taskbar lists open windows, and the active one matches the URL.
   - Closing the last open window leaves an empty desktop. Its URL is `/`, but the About Me window stays closed until it is opened again.
 - **About Me is the file explorer.** The home folder, Projects, Work Experience, every case study and role, and Credits.txt all render in the About Me window (`app="about"`, `<Explorer nav>`), so moving between them swaps that one window's contents. Registry entries with `opensIn: 'about'` (Projects, Work Experience) are shortcuts to folders in it and get no taskbar button of their own. The Explorer toolbar has:
-  - the Folders button (hamburger), which shows or hides the folder tree. On wide windows the tree is a left column and the choice is remembered (`localStorage.tree`, applied as `html[data-tree]` by the head script). On narrow windows it is a drawer that starts closed.
+  - the Folders button (hamburger), which shows or hides the folder tree. On wide windows the tree is a left column and the choice is remembered (`localStorage.tree`, applied as `html[data-tree]` by the head script). On narrow windows it is a full-width drawer that starts closed, with the +/- buttons on the right and a shallow indent.
+  - Home, a link to `C:\Joel Hunt\` (`/`).
   - Back and Forward, which step through the window's own history (`src/scripts/explorer.ts`). Closing the window resets it.
 
   The tree is built from the content collections in `src/components/explorer/tree.ts`. Resume.doc and Email Joel still open their own programs.

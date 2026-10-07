@@ -10,7 +10,7 @@
 //     live in the tree, so the file list only shows when the tree doesn't
 //     (narrow windows, or the tree toggled off).
 //
-// `nav` adds the Folders (hamburger), Back and Forward buttons and the tree.
+// `nav` adds the Folders (hamburger), Home, Back and Forward buttons and the tree.
 // Pages with `nav` all render in the About Me window, so moving between them
 // swaps that one window's contents (see src/scripts/explorer.ts).
 //
@@ -78,6 +78,9 @@ const Root = nav ? 'win-explorer' : 'div';
         <button type="button" class="explorer-tool" data-explorer="tree" aria-controls="explorer-tree" aria-expanded="true" aria-label="Folders" title="Folders">
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v2H2zm0 4h12v2H2zm0 4h12v2H2z" /></svg>
         </button>
+        <a class="explorer-tool" data-explorer="home" href="/" aria-label="Home" title="Home" aria-current={current === '/' ? 'page' : undefined}>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1L0 9h2v6h5v-4h2v4h5V9h2z" /></svg>
+        </a>
         <button type="button" class="explorer-tool" data-explorer="back" aria-label="Back" title="Back" disabled>
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 8l6-6v4h8v4H7v4z" /></svg>
         </button>

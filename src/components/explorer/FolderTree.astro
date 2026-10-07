@@ -2,7 +2,8 @@
 // One level of the folder tree; it renders itself for each folder's children.
 // Every row is a plain link. Folders also get a +/- button that shows or hides
 // their contents (src/scripts/explorer.ts); without JavaScript the whole tree
-// stays expanded.
+// stays expanded. The button follows the link in source order; wide windows
+// draw it on the left like Windows 98, the phone drawer on the right.
 import Icon from '../Icon.astro';
 import type { TreeNode } from './tree';
 
@@ -24,18 +25,6 @@ const groupId = (href: string) => `tree${href.replace(/[^a-z0-9]+/gi, '-')}`;
     return (
       <li>
         <div class="tree-row">
-          {folder ? (
-            <button
-              type="button"
-              class="tree-twisty"
-              aria-expanded="true"
-              aria-controls={groupId(n.href)}
-              aria-label={`${n.label} contents`}
-              data-folder={n.href}
-            ></button>
-          ) : (
-            <span class="tree-twisty" aria-hidden="true"></span>
-          )}
           <a
             class="tree-link"
             href={n.href}
@@ -50,6 +39,18 @@ const groupId = (href: string) => `tree${href.replace(/[^a-z0-9]+/gi, '-')}`;
               {n.external && <span class="visually-hidden"> (opens in a new tab)</span>}
             </span>
           </a>
+          {folder ? (
+            <button
+              type="button"
+              class="tree-twisty"
+              aria-expanded="true"
+              aria-controls={groupId(n.href)}
+              aria-label={`${n.label} contents`}
+              data-folder={n.href}
+            ></button>
+          ) : (
+            <span class="tree-twisty" aria-hidden="true"></span>
+          )}
         </div>
         {folder && <Astro.self nodes={n.children!} current={current} id={groupId(n.href)} />}
       </li>

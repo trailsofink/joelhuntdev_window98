@@ -1,5 +1,5 @@
 // Explorer behavior for <win-explorer> (src/components/Explorer.astro with
-// `nav`): Back and Forward, the Folders button and the tree's +/- buttons.
+// `nav`): Home, Back and Forward, the Folders button and the tree's +/- buttons.
 //
 // Every explorer page (home, Projects, a case study…) is its own URL, and they
 // all render in the About Me window, so the window manager swaps that one
@@ -35,7 +35,7 @@ let collapsed = new Set<string>(load<string[]>(COLLAPSED, []));
 /** The trail index a Back/Forward click is heading to. */
 let pending: number | null = null;
 /** What to focus in the new page's window after a navigation started here. */
-let refocus: 'back' | 'forward' | 'tree' | null = null;
+let refocus: 'home' | 'back' | 'forward' | 'tree' | null = null;
 /** The tree's scroll position, carried over to the next page's copy of the window. */
 let treeScroll = 0;
 
@@ -115,6 +115,10 @@ class WinExplorer extends HTMLElement {
   }
 
   focusAfterNavigation(what: NonNullable<typeof refocus>) {
+    if (what === 'home') {
+      this.querySelector<HTMLElement>('[data-explorer="home"]')?.focus();
+      return;
+    }
     if (what === 'tree') {
       if (this.#treeShown()) this.querySelector<HTMLElement>('.tree-link[aria-current="page"]')?.focus();
       return;
@@ -181,10 +185,11 @@ class WinExplorer extends HTMLElement {
     // A background window's buttons just bring it forward (wm.ts handles that).
     if (!this.#isPage) return;
 
-    const tool = t.closest<HTMLButtonElement>('[data-explorer]');
+    const tool = t.closest<HTMLElement>('[data-explorer]');
     if (tool) {
       const action = tool.dataset.explorer;
-      if (action === 'tree') this.#toggleTree();
+      if (action === 'home') refocus = 'home'; // a plain link; the router takes it
+      else if (action === 'tree') this.#toggleTree();
       else if (action === 'back') step(-1);
       else if (action === 'forward') step(1);
       return;

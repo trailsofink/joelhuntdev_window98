@@ -57,6 +57,7 @@
   color: var(--text-color);
 }
 .explorer-tool svg { width: 16px; height: 16px; fill: currentColor; }
+a.explorer-tool { text-decoration: none; }
 .explorer-tool:not(:disabled):hover {
   box-shadow: inset -1px -1px var(--button-shadow), inset 1px 1px var(--button-highlight);
 }
@@ -142,10 +143,8 @@ html:not([data-tree]) button.tree-twisty { visibility: hidden; }
 .explorer.is-tree-open .explorer-tree {
   display: block;
   position: absolute;
-  inset: 0 auto 0 0;
+  inset: 0;
   z-index: 2;
-  width: min(320px, 88%);
-  border-right: 2px solid var(--window-frame);
 }
 
 /* Wide: the tree is a column on the left, unless switched off. */
@@ -191,6 +190,7 @@ html:not([data-tree]) button.tree-twisty { visibility: hidden; }
 .tree-list[hidden] { display: none; }
 
 .tree-row { display: flex; align-items: flex-start; }
+.tree-row > .tree-twisty { order: -1; }
 
 .tree-twisty {
   position: relative;
@@ -245,8 +245,21 @@ button.tree-twisty:focus-visible { outline: 2px solid var(--accent); outline-off
 }
 .tree-link:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
-/* The drawer is read on phones: use the readable font. */
+/* The drawer, on phones and narrow windows: full width, readable type, a
+   shallow indent per level, and the +/- on the right as a 44px target, so
+   deep files keep most of the row for their names. */
+.explorer.is-tree-open .tree-list .tree-list {
+  margin-left: 12px;
+  padding-left: 10px;
+}
+.explorer.is-tree-open .tree-row { align-items: center; }
+.explorer.is-tree-open .tree-row > .tree-twisty { order: 0; }
+.explorer.is-tree-open span.tree-twisty { display: none; }
+.explorer.is-tree-open button.tree-twisty { width: var(--touch); height: var(--touch); }
 .explorer.is-tree-open .tree-link {
+  flex: 1;
+  gap: 8px;
+  min-height: var(--touch);
   font-family: var(--font-doc);
   font-size: var(--step-0);
   line-height: 1.25;
