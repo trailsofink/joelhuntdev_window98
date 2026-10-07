@@ -124,15 +124,6 @@ if (icons) {
     a.focus();
     if (e.detail >= 2) { select(null); navigate(a.href); }
   });
-
-  // A centered label whose width is an odd number of pixels starts on a half
-  // pixel, which blurs the pixel font. One more pixel of padding snaps it back.
-  document.fonts.ready.then(() => {
-    for (const label of icons.querySelectorAll<HTMLElement>('.desk-label')) {
-      const x = label.getBoundingClientRect().x;
-      if (Math.abs(x - Math.round(x)) > 0.25) label.style.paddingRight = '4px';
-    }
-  });
 }
 
 // --- Tray --------------------------------------------------------------------

@@ -31,7 +31,9 @@ const submenus = [
     <li>
       <a class="desk-icon" href={a.route} data-app={a.id}>
         <Icon name={a.icon} size={32} />
-        <span class="desk-label">{a.label}</span>
+        {/* One span per word: a wrapped label's lines are centered separately, and
+            pixel-snap.ts can only put each one on whole pixels if it is its own element. */}
+        <span class="desk-label">{a.label.split(' ').map((w, i) => <>{i > 0 && ' '}<span>{w}</span></>)}</span>
       </a>
     </li>
   ))}
@@ -148,4 +150,5 @@ const submenus = [
 <script>
   import '../../scripts/wm';
   import '../../scripts/shell';
+  import '../../scripts/pixel-snap';
 </script>

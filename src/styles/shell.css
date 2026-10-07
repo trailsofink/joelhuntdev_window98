@@ -32,12 +32,13 @@ win-window[data-min] { display: none; }
    window manager places it (--x/--y), so first paint is already final. */
 @media (min-width: 769px) {
   win-window.window {
-    --w: min(var(--win-w), 100vw - 16px);
-    --h: min(var(--win-h), 100dvh - var(--shell-bottom) - 16px);
+    /* Whole pixels throughout: a window on a half pixel blurs the pixel font. */
+    --w: round(down, min(var(--win-w), 100vw - 16px), 1px);
+    --h: round(down, min(var(--win-h), 100dvh - var(--shell-bottom) - 16px), 1px);
     width: var(--w);
     height: var(--h);
-    left: var(--x, max(8px, (100vw - var(--w)) / 2));
-    top: var(--y, max(8px, (100dvh - var(--shell-bottom) - var(--h)) / 2));
+    left: var(--x, round(down, max(8px, (100vw - var(--w)) / 2), 1px));
+    top: var(--y, round(down, max(8px, (100dvh - var(--shell-bottom) - var(--h)) / 2), 1px));
   }
   /* Fixed-size windows (Minesweeper) size to their content. */
   win-window.window:not([data-resizable]) {
@@ -142,6 +143,15 @@ win-window:not([data-resizable]) > .win-body { overflow: visible; }
 .window > .win-body.doc { margin: 2px; padding: 16px 20px; }
 @media (max-width: 480px) { .window > .win-body.doc { padding: 12px 14px; } }
 .window > .status-bar { flex: none; margin-top: 2px; font-family: var(--font-chrome); font-size: 11px; }
+/* Equal flex shares land on fractional pixels and blur the pixel font, so
+   every field but the last gets a whole-pixel share and the last takes the
+   rest. --fields is set by Window.astro. */
+.window > .status-bar { container-type: inline-size; }
+.window > .status-bar > .status-bar-field {
+  flex: none;
+  width: round(down, (100cqw - (var(--fields, 1) - 1) * 1px) / var(--fields, 1), 1px);
+}
+.window > .status-bar > .status-bar-field:last-child { flex: 1 1 0; width: auto; }
 
 /* ---------- Desktop icons ---------- */
 
@@ -169,12 +179,13 @@ win-window:not([data-resizable]) > .win-body { overflow: visible; }
   padding: 4px 2px;
   font-family: var(--font-chrome);
   font-size: 11px;
-  line-height: 1.25;
+  line-height: 14px;
   text-align: center;
   text-decoration: none;
   color: var(--desktop-ink);
   -webkit-tap-highlight-color: transparent;
 }
+.desk-label > span { display: inline-block; } /* so pixel-snap.ts can move each word */
 .desk-label {
   padding: 1px 3px;
   text-shadow: 1px 1px 0 var(--window-frame);

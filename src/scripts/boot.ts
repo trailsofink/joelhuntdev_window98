@@ -2,7 +2,7 @@
 // CSS animation delays own the timeline, so it finishes on time even when the
 // main thread is busy; this script ticks the counters, handles skip and the
 // sound offer, and removes the overlay when the fade ends.
-import { playSound, setSound } from './sound';
+import { playSound, setSound, soundOn } from './sound';
 
 const root = document.documentElement;
 const boot = document.getElementById('boot');
@@ -113,6 +113,16 @@ function run(el: HTMLElement) {
   });
   skipBtn.addEventListener('click', skip);
   soundBtns.forEach((b) => b.addEventListener('click', () => choose(b.dataset.sound === 'on')));
+
+  // A replay (Restart from Shut Down) starts from the choice already saved on
+  // this device instead of asking from scratch.
+  let saved: string | null = null;
+  try { saved = localStorage.getItem('sound'); } catch {}
+  if (saved === 'on' || saved === 'off') {
+    wantSound = soundOn();
+    soundBtns.forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.sound === 'on') === wantSound)));
+    state.textContent = wantSound ? 'Sound on' : 'Sound off';
+  }
 
   el.addEventListener('animationstart', (e) => {
     if (e.animationName === 'boot-splash') {

@@ -161,8 +161,13 @@ function place(win: Win) {
   if (s?.max) setMax(win, true, false);
   if (s && s.x !== undefined && s.y !== undefined) { setPos(win, s.x, s.y, false); return; }
   const others = allWins().filter((w) => w !== win && !isMin(w));
-  if (!others.length) return; // the CSS default (centered) is already right
   const r = win.getBoundingClientRect();
+  if (!others.length) {
+    // The CSS default (centered) is right, but a content-sized window can land
+    // on a half pixel, which blurs the pixel font; pin it to whole pixels.
+    if (!phone.matches && (r.left % 1 || r.top % 1)) setPos(win, r.left, r.top, false);
+    return;
+  }
   const n = others.length % 6;
   setPos(win, r.left + n * CASCADE, r.top + n * CASCADE, false);
 }
