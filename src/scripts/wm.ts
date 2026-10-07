@@ -390,6 +390,14 @@ document.addEventListener('dblclick', (e) => {
   if (win.hasAttribute('data-resizable') && !phone.matches) setMax(win, !win.classList.contains('is-max'));
 });
 
+// Close is a link to "/" so it works without JavaScript. The ClientRouter
+// follows links from its own document click listener, which runs before the
+// one below, so cancel window controls in the capture phase; otherwise the
+// router reloads "/" and About Me reopens the moment it is closed.
+document.addEventListener('click', (e) => {
+  if ((e.target as Element).closest('win-window[data-wm] [data-action]')) e.preventDefault();
+}, true);
+
 document.addEventListener('click', (e) => {
   const t = e.target as Element;
 
