@@ -5,7 +5,7 @@
    Two container queries drive the layout, so it follows the window size:
      explorer (the whole view): at 600px+ the tree is a column on the left;
        below that it is a drawer opened from the Folders button.
-     pane (the contents): details beside the files, and the icon grid. */
+     pane (the contents): the icon grid. */
 
 .window > .win-body:has(> .explorer) {
   display: flex;
@@ -370,18 +370,6 @@ summary.explorer-link:hover .explorer-label { text-decoration: underline; }
 }
 .explorer-notepad p { margin: 0 0 0.8em; }
 .explorer-notepad p:last-child { margin-bottom: 0; }
-
-/* Wide panes: the files first, the folder's details in a column on the right. */
-@container pane (min-width: 560px) {
-  .explorer--with-details .explorer-view { flex-direction: row; align-items: stretch; }
-  .explorer--with-details .explorer-files { flex: 1; min-width: 0; }
-  .explorer--with-details .explorer-details {
-    order: 1;
-    flex: 0 0 clamp(220px, 34%, 280px);
-    border-bottom: 0;
-    border-left: 1px solid var(--button-shadow);
-  }
-}
 
 @container pane (min-width: 400px) {
   .explorer--icons .explorer-files {
