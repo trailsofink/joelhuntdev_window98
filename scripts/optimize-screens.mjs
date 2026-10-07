@@ -61,6 +61,49 @@ const manifest = [
     blur: [{ left: 22, top: 860, width: 200, height: 34 }], // placeholder user name in the sidebar
   },
 
+  // Bulqit Figma frames (1x exports). The design files reuse the seed house
+  // photo and address, a real person's name as the signed-in user, and a
+  // vendor's logo, so all of those are obscured.
+  {
+    src: 'figma/vendors/inbox/D - Inbox - Chat - Proposal (Recurring).png', out: 'bulqit-inbox-proposal-figma.webp', width: 1440,
+    blur: [
+      { left: 282, top: 192, width: 52, height: 404 }, // house-photo avatars, every conversation
+      { left: 970, top: 12, width: 60, height: 60 }, // house-photo avatar, panel header
+      { left: 1036, top: 44, width: 246, height: 22 }, // street address, panel header
+      { left: 44, top: 852, width: 124, height: 28 }, // user name in the sidebar
+    ],
+  },
+  {
+    src: 'figma/vendors/homes/D - Homes Overview.png', out: 'bulqit-homes-figma.webp', width: 1440,
+    blur: [
+      { left: 272, top: 167, width: 170, height: 730 }, // street-view photos, every card
+      { left: 952, top: 0, width: 488, height: 182 }, // street-view photo, detail panel
+      { left: 1086, top: 158, width: 222, height: 36 }, // street address, detail panel
+      { left: 44, top: 852, width: 124, height: 28 }, // user name in the sidebar
+    ],
+  },
+  {
+    src: 'figma/design-system/color/Brand Palette.png', out: 'bulqit-figma-color-tokens.webp', width: DESKTOP,
+    crop: { left: 0, top: 0, width: 1440, height: 1140 }, // Primary through Information scales
+  },
+  {
+    src: 'figma/design-system/typography/Type Semantics.png', out: 'bulqit-figma-text-styles.webp', width: DESKTOP,
+    crop: { left: 120, top: 160, width: 3160, height: 1200 }, // desktop display and heading styles
+  },
+  {
+    src: 'figma/design-system/example-layouts/D - Calendar Flow - Upcoming.png', out: 'bulqit-figma-example-layout.webp', width: 1440,
+    blur: [
+      { left: 180, top: 20, width: 40, height: 40 }, // vendor's logo
+      { left: 44, top: 762, width: 124, height: 28 }, // user name in the sidebar
+      { left: 1026, top: 438, width: 376, height: 74 }, // staff names in the Share popover
+      { left: 940, top: 345, width: 68, height: 345 }, // street-view photos, left of the popover
+      { left: 940, top: 690, width: 96, height: 268 }, // street-view photos, below the popover
+      { left: 1052, top: 712, width: 170, height: 30 }, // street address, card 4
+      { left: 1052, top: 815, width: 170, height: 30 }, // street address, card 5
+      { left: 1052, top: 918, width: 170, height: 30 }, // street address, card 6
+    ],
+  },
+
   // FiveQ client sites
   { src: 'screens/fiveq/wiersbe-search-desktop.png', out: 'fiveq-wiersbe-search.webp', width: DESKTOP },
   { src: 'screens/fiveq/hutchcraft-search-desktop.png', out: 'fiveq-hutchcraft-search.webp', width: DESKTOP },
