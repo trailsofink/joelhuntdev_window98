@@ -176,18 +176,45 @@ html:not([data-tree]) button.tree-twisty { visibility: hidden; }
 
 /* ---------- Folder tree ---------- */
 
+/* Dotted guide lines like the Device Manager tree (and 98.css's tree-view):
+   a vertical line per folder, a short branch to each item, and the line
+   stops at the last item. --gutter is where the vertical line sits, --row
+   the height of one row, --branch how far a branch reaches. */
 .tree-list {
   --twisty: 18px;
+  --row: 20px;
+  --gutter: calc(var(--twisty) / 2);
+  --branch: calc(var(--twisty) - 5px);
   list-style: none;
   margin: 0;
   padding: 0;
 }
 .tree-list .tree-list {
-  margin-left: calc(var(--twisty) / 2);
+  margin-left: var(--gutter);
   padding-left: calc(var(--twisty) / 2 - 1px);
-  border-left: 1px dotted var(--button-shadow);
+  border-left: 1px dotted var(--doc-muted);
 }
 .tree-list[hidden] { display: none; }
+.tree-list .tree-list > li { position: relative; }
+.tree-list .tree-list > li::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--twisty) / -2);
+  top: calc(var(--row) / 2);
+  width: var(--branch);
+  border-bottom: 1px dotted var(--doc-muted);
+}
+/* Files have no +/- box, so their branch runs on to the icon. */
+.tree-list .tree-list > li:not(:has(> .tree-list))::before { width: calc(var(--twisty) * 1.5); }
+.tree-list .tree-list > li:last-child::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--twisty) / -2);
+  top: calc(var(--row) / 2 + 1px);
+  bottom: 0;
+  width: 1px;
+  background: var(--doc-bg);
+}
 
 .tree-row { display: flex; align-items: flex-start; }
 .tree-row > .tree-twisty { order: -1; }
@@ -211,7 +238,7 @@ button.tree-twisty::before {
   width: 9px;
   height: 9px;
   box-sizing: border-box;
-  border: 1px solid var(--button-shadow);
+  border: 1px solid var(--doc-muted);
   background:
     linear-gradient(var(--doc-ink), var(--doc-ink)) center / 5px 1px no-repeat,
     var(--doc-bg);
@@ -248,10 +275,13 @@ button.tree-twisty:focus-visible { outline: 2px solid var(--accent); outline-off
 /* The drawer, on phones and narrow windows: full width, readable type, a
    shallow indent per level, and the +/- on the right as a 44px target, so
    deep files keep most of the row for their names. */
+.explorer.is-tree-open .tree-list { --row: var(--touch); }
 .explorer.is-tree-open .tree-list .tree-list {
   margin-left: 12px;
   padding-left: 10px;
 }
+.explorer.is-tree-open .tree-list .tree-list > li::before { left: -11px; width: 10px; }
+.explorer.is-tree-open .tree-list .tree-list > li:last-child::after { left: -11px; }
 .explorer.is-tree-open .tree-row { align-items: center; }
 .explorer.is-tree-open .tree-row > .tree-twisty { order: 0; }
 .explorer.is-tree-open span.tree-twisty { display: none; }
@@ -267,7 +297,7 @@ button.tree-twisty:focus-visible { outline: 2px solid var(--accent); outline-off
 
 @media (pointer: coarse) {
   .explorer-tool { width: var(--touch); height: var(--touch); }
-  .tree-list { --twisty: var(--touch); }
+  .tree-list { --twisty: var(--touch); --row: var(--touch); }
   .tree-twisty { height: var(--touch); }
   .tree-link { min-height: var(--touch); }
 }
