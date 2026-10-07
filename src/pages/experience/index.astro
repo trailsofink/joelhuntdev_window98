@@ -17,10 +17,10 @@ const items: ExplorerItem[] = roles.map((r) => ({
 <Desktop
   title="Work Experience"
   description="Joel Hunt's six roles since 2020, from web designer to Director of Product Engineering at Bulqit. Open each one for the details."
-  app="experience"
+  app="about"
 >
-  <Window app="experience" status={[`${items.length} objects`]}>
-    <Explorer path={'C:\\Joel Hunt\\Work Experience\\'} items={items} view="details" label="Roles">
+  <Window app="about" title="Work Experience" status={[`${items.length} objects`]}>
+    <Explorer path={'C:\\Joel Hunt\\Work Experience\\'} items={items} view="details" label="Roles" nav>
       <Fragment slot="details">
         <h2 class="folder-name">Work Experience</h2>
         <p>Six roles since 2020, most recent first. Each file opens the role's full description.</p>

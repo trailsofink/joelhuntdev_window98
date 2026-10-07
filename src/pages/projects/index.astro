@@ -17,10 +17,10 @@ const items: ExplorerItem[] = [
 <Desktop
   title="Projects"
   description="Case studies from Joel Hunt's work at Bulqit and FiveQ: front-end rebuilds, vendor activation, performance, testing, Algolia search and a live radio player."
-  app="projects"
+  app="about"
 >
-  <Window app="projects" status={[`${items.length} objects`]}>
-    <Explorer path={'C:\\Joel Hunt\\Projects\\'} items={items} label="Project folders">
+  <Window app="about" title="Projects" status={[`${items.length} objects`]}>
+    <Explorer path={'C:\\Joel Hunt\\Projects\\'} items={items} label="Project folders" nav>
       <Fragment slot="details">
         <h2 class="folder-name">Projects</h2>
         <p>Case studies from two jobs. Each one covers the problem, what Joel did and the result, with screenshots.</p>

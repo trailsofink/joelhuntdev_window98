@@ -3,6 +3,7 @@ import type { GetStaticPaths } from 'astro';
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Desktop from '../../layouts/Desktop.astro';
 import Window from '../../components/Window.astro';
+import Explorer from '../../components/Explorer.astro';
 import { folders, type FolderId } from '../../components/content/folders';
 import '../../components/content/content.css';
 
@@ -24,33 +25,29 @@ const projects = folder
 <Desktop
   title={`${role.data.role}, ${company}`}
   description={`Joel Hunt as ${role.data.role} at ${company}, ${start} – ${end}. ${blurb}`}
-  app="experience"
+  app="about"
 >
-  <Window
-    app="experience"
-    title={`${company}.doc - WordPad`}
-    doc
-    menu={['File', 'Edit', 'View', 'Insert', 'Format', 'Help']}
-    status={[`${start} – ${end}`, 'For Help, press F1']}
-  >
-    <article class="doc-page">
-      <p class="doc-lede"><strong>{role.data.role}</strong>, {company}</p>
-      <p class="doc-meta">{start} – {end} · {blurb}</p>
-      <Content />
+  <Window app="about" title={`${company}.doc`} status={[`${start} – ${end}`]}>
+    <Explorer path={`C:\\Joel Hunt\\Work Experience\\${company}.doc`} icon="wordpad-doc" nav>
+      <article class="doc-page">
+        <p class="doc-lede"><strong>{role.data.role}</strong>, {company}</p>
+        <p class="doc-meta">{start} – {end} · {blurb}</p>
+        <Content />
 
-      {folder && (
-        <section aria-labelledby="role-projects">
-          <h2 id="role-projects">Case studies</h2>
-          <ul>
-            {projects.map((p) => (
-              <li><a href={`/projects/${p.id}`}>{p.data.title}</a></li>
-            ))}
-          </ul>
-          <p><a href={`/projects/${folder.id}`}>Open the {folder.name} project folder</a></p>
-        </section>
-      )}
+        {folder && (
+          <section aria-labelledby="role-projects">
+            <h2 id="role-projects">Case studies</h2>
+            <ul>
+              {projects.map((p) => (
+                <li><a href={`/projects/${p.id}`}>{p.data.title}</a></li>
+              ))}
+            </ul>
+            <p><a href={`/projects/${folder.id}`}>Open the {folder.name} project folder</a></p>
+          </section>
+        )}
 
-      <p class="doc-meta"><a href="/experience">Back to Work Experience</a> · <a href="/resume">Full resume</a></p>
-    </article>
+        <p class="doc-meta"><a href="/experience">Back to Work Experience</a> · <a href="/resume">Full resume</a></p>
+      </article>
+    </Explorer>
   </Window>
 </Desktop>

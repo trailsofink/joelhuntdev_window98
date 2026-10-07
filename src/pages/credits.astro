@@ -1,6 +1,7 @@
 ---
 import Desktop from '../layouts/Desktop.astro';
 import Window from '../components/Window.astro';
+import Explorer from '../components/Explorer.astro';
 import '../components/content/content.css';
 ---
 
@@ -9,28 +10,30 @@ import '../components/content/content.css';
   description="The open-source fonts, styles and tools behind Joel Hunt's Windows 98-style portfolio, with their licenses."
   app="about"
 >
-  <Window app="about" title="Credits.txt - Notepad" doc menu={['File', 'Edit', 'Search', 'Help']}>
-    <div class="doc-page notepad">
-      <p>This site is built from other people's generous work.</p>
+  <Window app="about" title="Credits.txt">
+    <Explorer path={'C:\\Joel Hunt\\Credits.txt'} icon="text-doc" nav>
+      <div class="doc-page notepad">
+        <p>This site is built from other people's generous work.</p>
 
-      <h2>Styles</h2>
-      <ul>
-        <li><a href="https://jdan.github.io/98.css/">98.css</a> by Jordan Scales, MIT License. The window chrome, buttons and fields.</li>
-      </ul>
+        <h2>Styles</h2>
+        <ul>
+          <li><a href="https://jdan.github.io/98.css/">98.css</a> by Jordan Scales, MIT License. The window chrome, buttons and fields.</li>
+        </ul>
 
-      <h2>Fonts</h2>
-      <ul>
-        <li>"Pixelated MS Sans Serif" by "lou", CC BY-SA 3.0. <a href="/fonts/ms_sans_serif_license.txt">License</a>. Title bars, menus and labels.</li>
-        <li><a href="https://www.brailleinstitute.org/freefont/">Atkinson Hyperlegible Next</a> by the Braille Institute, SIL Open Font License. Everything you read at length.</li>
-        <li><a href="https://fonts.google.com/specimen/VT323">VT323</a> by Peter Hull, SIL Open Font License. The boot screen.</li>
-      </ul>
+        <h2>Fonts</h2>
+        <ul>
+          <li>"Pixelated MS Sans Serif" by "lou", CC BY-SA 3.0. <a href="/fonts/ms_sans_serif_license.txt">License</a>. Title bars, menus and labels.</li>
+          <li><a href="https://www.brailleinstitute.org/freefont/">Atkinson Hyperlegible Next</a> by the Braille Institute, SIL Open Font License. Everything you read at length.</li>
+          <li><a href="https://fonts.google.com/specimen/VT323">VT323</a> by Peter Hull, SIL Open Font License. The boot screen.</li>
+        </ul>
 
-      <h2>Tools</h2>
-      <ul>
-        <li>Built with <a href="https://astro.build">Astro</a> and hosted on Vercel.</li>
-      </ul>
+        <h2>Tools</h2>
+        <ul>
+          <li>Built with <a href="https://astro.build">Astro</a> and hosted on Vercel.</li>
+        </ul>
 
-      <p><a href="/">Back to About Me</a></p>
-    </div>
+        <p><a href="/">Back to About Me</a></p>
+      </div>
+    </Explorer>
   </Window>
 </Desktop>

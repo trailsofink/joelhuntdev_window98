@@ -46,6 +46,12 @@ These pieces are shared across work streams, so change them only deliberately:
   - Above 768px, windows open at their registry size, cascade, drag by the title bar, and raise on focus.
   - When the visitor moves to a new URL, already-open windows are kept and the new page's window comes to the front.
   - The taskbar lists open windows, and the active one matches the URL.
+  - Closing the last open window leaves an empty desktop. Its URL is `/`, but the About Me window stays closed until it is opened again.
+- **About Me is the file explorer.** The home folder, Projects, Work Experience, every case study and role, and Credits.txt all render in the About Me window (`app="about"`, `<Explorer nav>`), so moving between them swaps that one window's contents. Registry entries with `opensIn: 'about'` (Projects, Work Experience) are shortcuts to folders in it and get no taskbar button of their own. The Explorer toolbar has:
+  - the Folders button (hamburger), which shows or hides the folder tree. On wide windows the tree is a left column and the choice is remembered (`localStorage.tree`, applied as `html[data-tree]` by the head script). On narrow windows it is a drawer that starts closed.
+  - Back and Forward, which step through the window's own history (`src/scripts/explorer.ts`). Closing the window resets it.
+
+  The tree is built from the content collections in `src/components/explorer/tree.ts`. Resume.doc and Email Joel still open their own programs.
 - **Theme.** The head script sets `html[data-theme]` from `localStorage.theme`, falling back to `prefers-color-scheme` and then to light. The Control Panel writes `localStorage.theme` and updates the attribute.
 - **Boot.** It shows on the first visit only (`localStorage.booted`). Any key or tap skips it, and `prefers-reduced-motion` skips it entirely. The desktop HTML is already rendered underneath the boot overlay.
 - **Sound.** Off by default. The boot screen offers to turn it on, and the speaker icon in the system tray toggles it (`localStorage.sound = "on"`). Audio files load only after sound is enabled.

@@ -22,13 +22,15 @@ export interface AppDef {
   /** Default window size on screens wider than 768px. Phones always maximize. */
   size: { width: number; height: number };
   resizable: boolean;
+  /** Opens as a folder inside another app's window instead of its own. */
+  opensIn?: string;
 }
 
 export const apps = [
   {
     id: 'about', title: 'About Me', label: 'About Me', route: '/',
     icon: 'my-computer', kind: 'explorer', desktop: true, start: 'top',
-    size: { width: 640, height: 460 }, resizable: true,
+    size: { width: 860, height: 640 }, resizable: true,
   },
   {
     id: 'resume', title: 'Resume.doc - WordPad', label: 'Resume.doc', route: '/resume',
@@ -38,12 +40,12 @@ export const apps = [
   {
     id: 'projects', title: 'Projects', label: 'Projects', route: '/projects',
     icon: 'folder', kind: 'explorer', desktop: true, start: 'programs',
-    size: { width: 640, height: 460 }, resizable: true,
+    size: { width: 640, height: 460 }, resizable: true, opensIn: 'about',
   },
   {
     id: 'experience', title: 'Work Experience', label: 'Work Experience', route: '/experience',
     icon: 'folder', kind: 'explorer', desktop: false, start: 'programs',
-    size: { width: 640, height: 460 }, resizable: true,
+    size: { width: 640, height: 460 }, resizable: true, opensIn: 'about',
   },
   {
     id: 'contact', title: 'New Message - Outlook Express', label: 'Outlook Express', route: '/contact',

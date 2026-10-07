@@ -1,0 +1,373 @@
+/* Explorer windows (src/components/Explorer.astro): toolbar, folder tree and
+   the contents pane. Plain CSS rather than scoped styles, because the tree,
+   the window body and html[data-tree] all take part. Colors only via tokens.
+
+   Two container queries drive the layout, so it follows the window size:
+     explorer (the whole view): at 600px+ the tree is a column on the left;
+       below that it is a drawer opened from the Folders button.
+     pane (the contents): details beside the files, and the icon grid. */
+
+.window > .win-body:has(> .explorer) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.explorer {
+  container: explorer / inline-size;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ---------- Toolbar: Folders, Back, Forward, Address ---------- */
+
+.explorer-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-chrome);
+  font-size: 11px;
+  color: var(--text-color);
+}
+
+.explorer-tools {
+  flex: none;
+  display: flex;
+  gap: 1px;
+  padding-right: 4px;
+  margin-right: 2px;
+  border-right: 1px solid var(--button-shadow);
+  box-shadow: 1px 0 var(--button-highlight);
+}
+
+.explorer-tool {
+  min-width: 0;
+  min-height: 0;
+  width: 28px;
+  height: 24px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  background: none;
+  box-shadow: none;
+  color: var(--text-color);
+}
+.explorer-tool svg { width: 16px; height: 16px; fill: currentColor; }
+.explorer-tool:not(:disabled):hover {
+  box-shadow: inset -1px -1px var(--button-shadow), inset 1px 1px var(--button-highlight);
+}
+.explorer-tool:not(:disabled):active,
+.explorer-tool[aria-expanded="true"] {
+  box-shadow: inset -1px -1px var(--button-highlight), inset 1px 1px var(--button-shadow);
+}
+.explorer-tool:disabled { color: var(--button-shadow); }
+.explorer-tool:disabled svg { filter: drop-shadow(1px 1px 0 var(--button-highlight)); }
+.explorer-tool:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* The tree buttons only work with JavaScript; html[data-tree] is set by the
+   head script, so without it they stay out of the way. */
+html:not([data-tree]) .explorer-tool[data-explorer="tree"] { display: none; }
+html:not([data-tree]) button.tree-twisty { visibility: hidden; }
+
+.explorer-address {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.explorer-address-field {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px;
+  background: var(--doc-bg);
+  color: var(--doc-ink);
+  box-shadow:
+    inset -1px -1px var(--button-highlight),
+    inset 1px 1px var(--button-shadow),
+    inset -2px -2px var(--button-face),
+    inset 2px 2px var(--window-frame);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.explorer-address-field span { overflow: hidden; text-overflow: ellipsis; }
+
+@container explorer (max-width: 420px) {
+  .explorer--nav .explorer-address-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* ---------- Tree and contents ---------- */
+
+.explorer-main {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  gap: 4px;
+}
+
+
+.explorer-tree,
+.explorer-pane {
+  background: var(--doc-bg);
+  color: var(--doc-ink);
+  box-shadow:
+    inset -1px -1px var(--button-highlight),
+    inset 1px 1px var(--button-shadow),
+    inset -2px -2px var(--button-face),
+    inset 2px 2px var(--window-frame);
+}
+
+/* Narrow: the tree is a drawer over the contents, opened from Folders. */
+.explorer-tree {
+  display: none;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 6px 4px;
+}
+.explorer.is-tree-open .explorer-tree {
+  display: block;
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 2;
+  width: min(320px, 88%);
+  border-right: 2px solid var(--window-frame);
+}
+
+/* Wide: the tree is a column on the left, unless switched off. */
+@container explorer (min-width: 600px) {
+  .explorer-tree {
+    display: block;
+    flex: 0 0 clamp(190px, 30%, 250px);
+  }
+  html[data-tree="hidden"] .explorer-tree { display: none; }
+
+  /* Home: with the tree showing, its files are already listed on the left. */
+  html:not([data-tree="hidden"]) .explorer--home .explorer-files { display: none; }
+}
+
+.explorer-pane {
+  container: pane / inline-size;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px;
+}
+.explorer-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* ---------- Folder tree ---------- */
+
+.tree-list {
+  --twisty: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.tree-list .tree-list {
+  margin-left: calc(var(--twisty) / 2);
+  padding-left: calc(var(--twisty) / 2 - 1px);
+  border-left: 1px dotted var(--button-shadow);
+}
+.tree-list[hidden] { display: none; }
+
+.tree-row { display: flex; align-items: flex-start; }
+
+.tree-twisty {
+  position: relative;
+  flex: none;
+  min-width: 0;
+  min-height: 0;
+  width: var(--twisty);
+  height: 20px;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+button.tree-twisty::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 5px);
+  top: calc(50% - 5px);
+  width: 9px;
+  height: 9px;
+  box-sizing: border-box;
+  border: 1px solid var(--button-shadow);
+  background:
+    linear-gradient(var(--doc-ink), var(--doc-ink)) center / 5px 1px no-repeat,
+    var(--doc-bg);
+}
+button.tree-twisty[aria-expanded="false"]::before {
+  background:
+    linear-gradient(var(--doc-ink), var(--doc-ink)) center / 5px 1px no-repeat,
+    linear-gradient(var(--doc-ink), var(--doc-ink)) center / 1px 5px no-repeat,
+    var(--doc-bg);
+}
+button.tree-twisty:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.tree-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 20px;
+  padding: 1px 2px;
+  color: var(--doc-ink);
+  text-decoration: none;
+  font-family: var(--font-chrome);
+  font-size: 11px;
+  line-height: 14px;
+}
+.tree-label { padding: 1px 3px; overflow-wrap: anywhere; }
+.tree-link:hover .tree-label { text-decoration: underline; }
+.tree-link[aria-current="page"] .tree-label {
+  background: var(--select-bg);
+  color: var(--select-ink);
+}
+.tree-link:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* The drawer is read on phones: use the readable font. */
+.explorer.is-tree-open .tree-link {
+  font-family: var(--font-doc);
+  font-size: var(--step-0);
+  line-height: 1.25;
+}
+
+@media (pointer: coarse) {
+  .explorer-tool { width: var(--touch); height: var(--touch); }
+  .tree-list { --twisty: var(--touch); }
+  .tree-twisty { height: var(--touch); }
+  .tree-link { min-height: var(--touch); }
+}
+
+/* ---------- Contents: documents, details and files ---------- */
+
+.explorer-doc { flex: 1 0 auto; }
+
+.explorer-details {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--button-shadow);
+}
+.explorer-details > :first-child { margin-top: 0; }
+.explorer-details > :last-child { margin-bottom: 0; }
+
+/* The home folder lists its files under the summary when the tree is hidden. */
+.explorer--home .explorer-doc { flex: none; }
+.explorer--home .explorer-files { border-top: 1px solid var(--button-shadow); }
+
+/* Phone layout: a vertical list with 44px rows */
+.explorer-files {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+.explorer-item { min-width: 0; }
+.explorer-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--touch);
+  padding: 4px 6px;
+  color: var(--doc-ink);
+  text-decoration: none;
+  font-family: var(--font-doc);
+  font-size: var(--step-0);
+  line-height: 1.25;
+  cursor: pointer;
+}
+.explorer-link--inert { cursor: default; }
+summary.explorer-link { list-style: none; }
+summary.explorer-link::-webkit-details-marker { display: none; }
+.explorer-label {
+  padding: 1px 3px;
+  overflow-wrap: anywhere;
+}
+a.explorer-link:hover .explorer-label,
+summary.explorer-link:hover .explorer-label { text-decoration: underline; }
+.explorer-link:focus-visible .explorer-label,
+.explorer-textfile[open] > summary .explorer-label {
+  background: var(--select-bg);
+  color: var(--select-ink);
+}
+
+.explorer-desc {
+  margin: -6px 0 6px 48px;
+  font-family: var(--font-doc);
+  font-size: var(--step-0);
+  color: var(--doc-muted);
+  line-height: 1.45;
+}
+.explorer--icons .explorer-desc { display: none; }
+
+.explorer-notepad {
+  margin: 4px 6px 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--button-shadow);
+}
+.explorer-notepad p { margin: 0 0 0.8em; }
+.explorer-notepad p:last-child { margin-bottom: 0; }
+
+/* Wide panes: the files first, the folder's details in a column on the right. */
+@container pane (min-width: 560px) {
+  .explorer--with-details .explorer-view { flex-direction: row; align-items: stretch; }
+  .explorer--with-details .explorer-files { flex: 1; min-width: 0; }
+  .explorer--with-details .explorer-details {
+    order: 1;
+    flex: 0 0 clamp(220px, 34%, 280px);
+    border-bottom: 0;
+    border-left: 1px solid var(--button-shadow);
+  }
+}
+
+@container pane (min-width: 400px) {
+  .explorer--icons .explorer-files {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+    align-content: start;
+    gap: 6px 2px;
+    padding: 10px 6px;
+  }
+  .explorer--icons .explorer-link {
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 2px;
+    text-align: center;
+    font-family: var(--font-chrome);
+    font-size: 11px;
+    min-height: 0;
+  }
+  .explorer--icons .explorer-item--text:has(details[open]) { grid-column: 1 / -1; }
+  .explorer--icons .explorer-textfile[open] > summary {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .explorer--details .explorer-files { padding: 8px; }
+  .explorer--details .explorer-item { border-bottom: 1px dotted var(--button-shadow); padding-bottom: 4px; }
+}
+
+@media (pointer: coarse) {
+  .explorer-link { min-height: var(--touch); }
+}

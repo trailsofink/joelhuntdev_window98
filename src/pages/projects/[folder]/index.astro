@@ -22,9 +22,9 @@ const items: ExplorerItem[] = studies.map((s) => ({
 }));
 ---
 
-<Desktop title={`${folder.name} projects`} description={folder.description} app="projects">
-  <Window app="projects" title={folder.name} status={[`${items.length} objects`]}>
-    <Explorer path={`C:\\Joel Hunt\\Projects\\${folder.name}\\`} items={items} view="details" label={`${folder.name} case studies`}>
+<Desktop title={`${folder.name} projects`} description={folder.description} app="about">
+  <Window app="about" title={folder.name} status={[`${items.length} objects`]}>
+    <Explorer path={`C:\\Joel Hunt\\Projects\\${folder.name}\\`} items={items} view="details" label={`${folder.name} case studies`} nav>
       <Fragment slot="details">
         <h2 class="folder-name">{folder.name}</h2>
         <p class="folder-tag">{folder.tagline}</p>
@@ -32,7 +32,6 @@ const items: ExplorerItem[] = studies.map((s) => ({
         <ul class="doc-links">
           {folder.site && <li><a href={folder.site.href} rel="noopener" target="_blank">{folder.site.label}<span class="visually-hidden"> (opens in a new tab)</span></a></li>}
           <li><a href={folder.experience}>Role details</a></li>
-          <li><a href="/projects">Up to Projects</a></li>
         </ul>
       </Fragment>
     </Explorer>

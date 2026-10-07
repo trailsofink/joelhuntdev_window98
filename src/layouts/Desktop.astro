@@ -57,7 +57,8 @@ const onVercel = Boolean(process.env.VERCEL);
     <link rel="preload" href="/fonts/ms_sans_serif.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
 
-    <!-- Theme before first paint: saved choice, else the browser's, else light.
+    <!-- Theme (saved choice, else the browser's, else light) and the explorer tree
+         state before first paint.
          Re-applied after each client-side swap, which replaces <html> attributes. -->
     <script is:inline>
       (() => {
@@ -68,6 +69,10 @@ const onVercel = Boolean(process.env.VERCEL);
             t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
           }
           document.documentElement.dataset.theme = t;
+          // Explorer folder tree on wide windows: shown unless switched off.
+          let tree = null;
+          try { tree = localStorage.getItem('tree'); } catch {}
+          document.documentElement.dataset.tree = tree === 'hidden' ? 'hidden' : 'shown';
         };
         apply();
         document.addEventListener('astro:after-swap', apply);

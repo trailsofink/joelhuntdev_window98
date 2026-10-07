@@ -1,0 +1,58 @@
+---
+// One level of the folder tree; it renders itself for each folder's children.
+// Every row is a plain link. Folders also get a +/- button that shows or hides
+// their contents (src/scripts/explorer.ts); without JavaScript the whole tree
+// stays expanded.
+import Icon from '../Icon.astro';
+import type { TreeNode } from './tree';
+
+interface Props {
+  nodes: TreeNode[];
+  /** Clean path of the page being shown, e.g. "/projects/bulqit". */
+  current: string;
+  id?: string;
+}
+
+const { nodes, current, id } = Astro.props;
+const groupId = (href: string) => `tree${href.replace(/[^a-z0-9]+/gi, '-')}`;
+---
+
+<ul class="tree-list" id={id}>
+  {nodes.map((n) => {
+    const here = n.href === current;
+    const folder = !!n.children?.length;
+    return (
+      <li>
+        <div class="tree-row">
+          {folder ? (
+            <button
+              type="button"
+              class="tree-twisty"
+              aria-expanded="true"
+              aria-controls={groupId(n.href)}
+              aria-label={`${n.label} contents`}
+              data-folder={n.href}
+            ></button>
+          ) : (
+            <span class="tree-twisty" aria-hidden="true"></span>
+          )}
+          <a
+            class="tree-link"
+            href={n.href}
+            aria-current={here ? 'page' : undefined}
+            download={n.download}
+            target={n.external ? '_blank' : undefined}
+            rel={n.external ? 'noopener' : undefined}
+          >
+            <Icon name={here && n.icon === 'folder' ? 'folder-open' : n.icon} size={16} />
+            <span class="tree-label">
+              {n.label}
+              {n.external && <span class="visually-hidden"> (opens in a new tab)</span>}
+            </span>
+          </a>
+        </div>
+        {folder && <Astro.self nodes={n.children!} current={current} id={groupId(n.href)} />}
+      </li>
+    );
+  })}
+</ul>

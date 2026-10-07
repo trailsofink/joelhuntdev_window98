@@ -210,6 +210,9 @@ function renderTaskbar() {
     li.hidden = !win;
     li.style.order = String(openOrder.indexOf(app));
     li.querySelector('button')?.setAttribute('aria-pressed', String(!!win && win === active && !isMin(win)));
+    // An explorer window shows different folders; its button names the current one.
+    const label = li.querySelector('.task-label');
+    if (win?.dataset.kind === 'explorer' && label) label.textContent = titleBar(win)?.querySelector('.title-bar-text')?.textContent ?? label.textContent;
   }
 }
 
@@ -232,21 +235,31 @@ function close(win: Win) {
   const wasPage = win === pageWin();
   win.remove();
   stack = stack.filter((w) => w !== win);
+  closed(win.dataset.app!);
   if (!wasPage) { activate(active === win ? null : active); return; }
   const next = topVisible();
   if (next?.dataset.url) { refocus = true; navigate(next.dataset.url); return; }
-  if (normPath(location.pathname) !== '/') { refocus = true; navigate('/'); return; }
+  // Nothing left open: show the bare desktop. Its URL is "/", which also
+  // renders About Me, so the next swap drops that window instead of showing it.
+  if (normPath(location.pathname) !== '/') { emptyDesktop = true; navigate('/'); return; }
   activate(null);
   (document.getElementById('start-button') as HTMLElement | null)?.focus();
 }
 
 let refocus = false;
+let emptyDesktop = false;
+
+/** Tells other scripts (the explorer's Back/Forward history) a window closed. */
+function closed(app: string) {
+  document.dispatchEvent(new CustomEvent('wm:close', { detail: { app } }));
+}
 
 /** Shut Down > Log off: every window closes and the session forgets positions. */
 export function closeAll() {
-  for (const w of allWins()) w.remove();
+  for (const w of allWins()) { w.remove(); closed(w.dataset.app!); }
   stack = []; openOrder = []; saved = {}; active = null;
   persist();
+  emptyDesktop = true;
   navigate('/');
 }
 
@@ -310,6 +323,13 @@ document.addEventListener('astro:after-swap', () => {
     fresh.remove();
   }
   reclaim = null;
+  if (emptyDesktop) {
+    emptyDesktop = false;
+    pageWin()?.remove();
+    sync();
+    (document.getElementById('start-button') as HTMLElement | null)?.focus();
+    return;
+  }
   sync();
 });
 
