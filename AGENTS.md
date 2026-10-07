@@ -23,7 +23,7 @@ Joel Hunt's portfolio, rebuilt as a mobile-first "Midnight 98" desktop. Astro 7,
 - **Copy.** Plain, specific, active voice. Name things the way a visitor would.
 - **Lord of the Rings jokes stay in their agreed places:** the boot screen ("One does not simply walk into production. Booting anyway."), the 404 page ("You shall not pass"), Shut Down ("Not all those who wander are lost.") and the Recycle Bin (`my_precious_cypress_suite.bak`). Nowhere else.
 - **Privacy.** No phone number on the site. Bulqit screenshots must have the seed address (1244 Rothesay Cir) and the street-view house photo blurred. Security work is described by category only ("authorization flaw on vendor payouts"); never include endpoint paths, reproduction steps, or findings that were still unresolved.
-- **Raw assets.** `assets-raw/` is private source material and is gitignored. Optimized, publishable copies go in `src/assets/`.
+- **Raw assets.** Private source screenshots and Figma exports live outside this repo, in `/home/joelhunt/workspaces/bulqit/portfolio-assets/` (`figma/`, `screens/`). `scripts/optimize-screens.mjs` reads from there; its optimized, publishable copies go in `src/assets/`.
 
 ## Architecture contract
 

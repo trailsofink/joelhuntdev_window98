@@ -1,9 +1,10 @@
-// Turns the private screenshots in assets-raw/ into publishable WebP files in
+// Turns the private screenshots (kept outside this repo, in the Bulqit
+// workspace) into publishable WebP files in
 // src/assets/screens/. Astro then makes AVIF/WebP sizes from these at build.
 //
-//   node scripts/optimize-screens.mjs [path/to/assets-raw]
+//   node scripts/optimize-screens.mjs [path/to/raw-assets]
 //
-// assets-raw/ is gitignored, so the published WebP files are committed and
+// The raw files are not in the repo, so the published WebP files are committed and
 // this script only needs to run when a screenshot changes.
 //
 // PRIVACY: Bulqit's seed data uses a real street address and its street-view
@@ -17,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const raw = resolve(process.argv[2] ?? join(root, 'assets-raw'));
+const raw = resolve(process.argv[2] ?? process.env.RAW_ASSETS ?? '/home/joelhunt/workspaces/bulqit/portfolio-assets');
 const outDir = join(root, 'src/assets/screens');
 
 const DESKTOP = 1600;
