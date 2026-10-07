@@ -1,0 +1,48 @@
+MIT License
+
+Copyright (c) 2026 Joel Hunt
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-------------------------------------------------------------------------------
+
+What the MIT License covers
+
+The MIT License above covers the source code: the Astro components, layouts,
+pages, scripts, styles and build tooling.
+
+It does not cover Joel Hunt's personal content, which is copyright (c) 2026
+Joel Hunt, all rights reserved:
+
+  - the written content in src/content/ and src/data/profile.ts (biography,
+    work history, case studies);
+  - public/Joel_Hunt_Resume.pdf;
+  - the screenshots in src/assets/screens/;
+  - the name, likeness and contact details of Joel Hunt.
+
+If you fork this project, replace that content with your own.
+
+Third-party work keeps its own license:
+
+  - 98.css by Jordan Scales, MIT License (vendored in src/styles/vendor/).
+  - "Pixelated MS Sans Serif" font by "lou", CC BY-SA 3.0
+    (public/fonts/ms_sans_serif_license.txt).
+  - Atkinson Hyperlegible Next and VT323, SIL Open Font License 1.1.
+  - Screenshots of client websites and products remain the property of their
+    respective owners.

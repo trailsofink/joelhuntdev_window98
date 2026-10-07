@@ -8,3 +8,7 @@ pnpm dev
 ```
 
 See [AGENTS.md](AGENTS.md) for architecture, the performance budget and conventions.
+
+## License
+
+The code is [MIT](LICENSE). The personal content (bio, work history, case studies, resume PDF and screenshots) is not; it's © Joel Hunt, all rights reserved. If you fork this, swap in your own. Third-party styles and fonts keep their own licenses, listed in [LICENSE](LICENSE).
