@@ -3,13 +3,14 @@
 
 export const resume = {
   summary:
-    'Product engineer working between design and code, with six years taking web products from Figma to production. Most recently led front-end engineering at an early-stage marketplace through its redesign and public launch. Strongest in React and Next.js, design systems, accessibility, performance, and the test and CI infrastructure that lets a small team ship safely.',
+    'Product engineer bridging design and code, with six years of experience building and launching web products from concept to production; most recently, as an engineering lead at an early-stage startup through a redesign and public launch. Specialize in React and Next.js, design systems, accessibility, performance, and robust test/CI infrastructure. Developed an AI-agent workflow with automated tests to verify agent-written code.',
   skills: [
-    ['Front End', 'React, Next.js (App Router, Server Components, Server Actions), TypeScript, Tailwind CSS, Radix UI / shadcn/ui, Storybook'],
-    ['Design Systems & UX', 'Figma, design tokens, component libraries, WCAG 2.1 accessibility, responsive design, usability testing'],
-    ['Back End & Data', 'Node.js, PostgreSQL, Drizzle ORM, REST APIs, Stripe, Ruby on Rails'],
-    ['Testing & DevOps', 'Playwright, Vitest, Cypress, GitHub Actions CI, Vercel, Docker, Sentry, Lighthouse'],
-    ['Also', 'JavaScript, PHP, SQL, HTML/CSS, WordPress, Kirby CMS, Magento 2, Moodle / Totara, Linear, Jira, Claude Code'],
+    ['Frontend', 'React, Next.js, Tailwind CSS 4, Bootstrap 5, Radix UI / shadcn/ui, Redux Toolkit, Storybook'],
+    ['Design Systems & UX', 'Figma, design systems and design tokens, WCAG 2.1 accessibility, responsive design, usability testing, prototyping'],
+    ['Backend & Data', 'Node.js, REST APIs, PostgreSQL, Drizzle ORM, Temporal workflows, Stripe, Clerk auth, Ruby on Rails, Sanity CMS, Algolia, Kirby CMS, Magento 2, Moodle / Totara'],
+    ['Cloud & DevOps', 'Vercel, Fly.io, Docker, CI/CD with GitHub Actions, Neon, Turborepo, Twilio, SendGrid'],
+    ['Testing & Quality', 'Playwright, Vitest, Testing Library, Cypress, Sentry, Lighthouse'],
+    ['Practices', 'Agile, Linear, Jira, code review, AI-assisted development, technical documentation'],
   ],
   recent: {
     experience: 'bulqit',
@@ -17,14 +18,15 @@ export const resume = {
     company: 'Bulqit',
     dates: 'May 2026 – Oct 2026',
     context:
-      'Engineering lead at a five-person home-services marketplace, owning the codebase after an agency handoff through soft launch (Jul 2026) and public launch (Aug 2026); company closed Oct 2026.',
+      'Engineering lead at a home-services marketplace, owning the codebase after an agency handoff through soft launch (Jul 2026) and public launch (Aug 2026); company closed Oct 2026.',
     bullets: [
-      'Led the pre-launch redesign, building the lead designer’s Figma system in Next.js and React across the vendor app, member app and marketing site: 45 routes in five weeks, to WCAG 2.1 and fully responsive. Rebuilt vendor workflows and guided onboarding, and about 75% of vendor signups then completed compliance with no staff follow-up.',
-      'Made Figma the source of truth for the front end: migrated 619 files to design tokens and unified four competing type systems into Figma text styles (728 files), enforced by a lint rule against hard-coded colors. Upgraded to Tailwind CSS 4 with no visual regressions.',
-      'Led a Lighthouse performance and accessibility push across 12 public pages. On the vendor landing page, mobile Performance rose from 53 to 86, Total Blocking Time fell from 17.2 s to 0.2 s, and page weight fell from 5.7 MB to 1.7 MB. Every page now scores 91+ for Accessibility and 100 for SEO.',
-      'Replaced a non-functional Cypress suite with 113 Playwright end-to-end tests covering seven user roles from signup to card payment, run in CI on every pull request, and closed authorization flaws found in a security audit, each backed by a CI guard test that fails if the gap returns.',
-      'Built a partner integration so field techs could keep working in their existing software: each post-visit report automatically completes the job, charges the customer and delivers a branded report to the homeowner. Caught three billing defects before release, with zero billing errors in production.',
-      'Built a parallel AI-agent development workflow (several coding agents in separate git worktrees) with automated guardrails: wrote 23 of the repository’s 39 CI guard tests and the team’s engineering handbook so agent-written code was verified by tests, not only review.',
+      'Redesigned the product pre-launch, implementing a unified Figma design system across the vendor app, member app, and marketing site: 45 routes in five weeks, to WCAG 2.1 and responsive standards.',
+      'Implemented a Figma-based design system across 619 files by merging four competing type systems into a unified, cohesive system, removed redundant, conflicting, and outdated styling frameworks, and upgraded to Tailwind CSS 4 with no visual regressions.',
+      'Rebuilt core vendor and member workflows and shipped guided onboarding (75% self-service activation/compliance). Built a customer migration flow and automated email-driven reporting pipeline for a partner integration.',
+      'Drove performance and accessibility improvements across 12 public pages; Mobile Performance rose from 53 to 86-100 across marketing pages, Total Blocking Time fell from 17.2 s to 0.2 s, and page weight fell from 5.7 MB to 1.7 MB. Every page now scores 91+ for Accessibility and 100 for SEO.',
+      'Stabilized an inherited codebase (checkout, coupons, SMS masking, email delivery); led recovery through launch and caught billing defects before release, achieving zero errors in production payments and recurring services.',
+      'Directed launch QA with persona-based test cases and coordinated internal/external testers, achieving zero downtime on core web systems. Replaced inadequate E2E tests with a Playwright suite (113 full user-role coverage tests, CI integration).',
+      'Led an AI-assisted security audit and development workflow, closing critical authorization flaws, with each fix validated by CI guard tests. Wrote 23 of the repository’s 39 CI guard tests and the team’s engineering handbook so agent-written code was verified by tests, not only review.',
     ],
   },
   earlier: {
